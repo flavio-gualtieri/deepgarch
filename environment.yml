@@ -1,0 +1,6 @@
+name: deepgarch
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+prefix: /Users/qp252676/miniforge3/envs/deepgarch
