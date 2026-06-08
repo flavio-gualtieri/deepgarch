@@ -2,8 +2,8 @@
 
 from abc import ABC, abstractmethod
 
-import torch
 from torch import Tensor
+
 
 class VolatilityModel(ABC):
 
@@ -11,10 +11,12 @@ class VolatilityModel(ABC):
     def filter(self, returns: Tensor) -> Tensor:
         ...
 
+
     @abstractmethod
     def loglikelihood(self, returns: Tensor) -> Tensor:
         ...
 
+
     @abstractmethod
-    def forecast(self, steps: int) -> Tensor:
+    def forecast(self, returns: Tensor, h: int) -> Tensor:
         ...

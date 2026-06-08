@@ -21,3 +21,7 @@ data/processed/
 
 # OS
 .DS_Store
+
+
+# random
+deepgarch_walkthrough.ipynb

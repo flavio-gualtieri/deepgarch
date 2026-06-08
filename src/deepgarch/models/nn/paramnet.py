@@ -1,6 +1,8 @@
-import torch
+# src/deepgarch/models/nn/paramnet.py
+
 import torch.nn as nn
 from torch import Tensor
+
 
 class ParamNet(nn.Module):
 
@@ -25,6 +27,7 @@ class ParamNet(nn.Module):
         layers.append(nn.Linear(input_dim, n_params))
 
         self._mlp = nn.Sequential(*layers)
+
 
     def forward(self, x: Tensor) -> Tensor:
         return self._mlp(x)
