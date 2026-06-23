@@ -27,7 +27,7 @@ from deepgarch.data import MarketData
 
 data = MarketData(
     ticker="SPY",
-    start="2021-06-11",
+    start="2021-06-23",
     val_start="2024-01-01",
     test_start="2025-06-01",
 ).load()
@@ -52,14 +52,14 @@ pipeline = FeaturePipeline([
 ])
 
 X_train = pipeline.fit_transform(data.train)
-X_val   = pipeline.transform(data.val)
-X_test  = pipeline.transform(data.test)
+X_val = pipeline.transform(data.val)
+X_test = pipeline.transform(data.test)
 
 # ── Tensors ───────────────────────────────────────────────────────────────────
 
 returns_train = torch.tensor(data.train.values, dtype=torch.float32)
-returns_val   = torch.tensor(data.val.values,   dtype=torch.float32)
-returns_test  = torch.tensor(data.test.values,  dtype=torch.float32)
+returns_val = torch.tensor(data.val.values, dtype=torch.float32)
+returns_test = torch.tensor(data.test.values,  dtype=torch.float32)
 
 # ── Model ─────────────────────────────────────────────────────────────────────
 
@@ -144,10 +144,10 @@ class TqdmTrainer(Trainer):
         return result
 
 config = TrainConfig(
-    max_epochs=300,
+    max_epochs=500,
     learning_rate=5e-3,
     weight_decay=1e-4,
-    patience=30,
+    patience=100,
     min_delta=1e-4,
     grad_clip=1.0,
     log_every=25,
@@ -181,11 +181,11 @@ neural_metrics = evaluate(data.test.values, neural_var)
 
 static_garch = StaticGARCH()
 static_garch.fit(data.train)
-static_var     = static_garch.filter(data.test).numpy()
+static_var = static_garch.filter(data.test)
 static_metrics = evaluate(data.test.values, static_var)
 
 comparison_table({
-    "GARCHNet":     neural_metrics,
+    "GARCHNet": neural_metrics,
     "Static GARCH": static_metrics,
 })
 
@@ -218,12 +218,12 @@ savefig("02_forecast_vs_realised.png")
 
 # plot: VaR violations (99%)
 alpha_var = 0.01
-z99       = 2.326            # Φ⁻¹(0.01)
-rets      = data.test.values
+z99 = 2.326            # Φ⁻¹(0.01)
+rets = data.test.values
 
 for label, vol, fname in [
-    ("GARCHNet",        neural_vol, "03_var_violations_garchnet.png"),
-    ("Static GARCH",    static_vol, "04_var_violations_static.png"),
+    ("GARCHNet", neural_vol, "03_var_violations_garchnet.png"),
+    ("Static GARCH", static_vol, "04_var_violations_static.png"),
 ]:
     var_line   = -z99 * vol
     violations = rets < var_line
@@ -246,11 +246,11 @@ for label, vol, fname in [
 h = 30
 
 with torch.no_grad():
-    garch_full  = model.build_garch(torch.cat([X_train, X_val, X_test]))
+    garch_full = model.build_garch(torch.cat([X_train, X_val, X_test]))
     all_returns = torch.cat([returns_train, returns_val, returns_test])
-    fcast_var   = garch_full.forecast(all_returns, h=h).numpy()
+    fcast_var = garch_full.forecast(all_returns, h=h).numpy()
 
-fcast_vol    = np.sqrt(fcast_var) * np.sqrt(252)   # annualised
+fcast_vol = np.sqrt(fcast_var) * np.sqrt(252)   # annualised
 terminal_vol = np.sqrt(neural_var[-1]) * np.sqrt(252)
 
 # plot: forward vol curve

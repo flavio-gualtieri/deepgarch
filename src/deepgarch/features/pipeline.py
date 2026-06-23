@@ -5,11 +5,12 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
 import torch
+
 from torch import Tensor
 
 
-class Feature(ABC):
 
+class Feature(ABC):
     @abstractmethod
     def compute(self, returns: pd.Series) -> pd.Series:
         ...
@@ -22,8 +23,8 @@ class Feature(ABC):
         ...
 
 
-class RealizedVolatility(Feature):
 
+class RealizedVolatility(Feature):
     def __init__(self, window: int) -> None:
         self.window = window
 
@@ -37,8 +38,8 @@ class RealizedVolatility(Feature):
         return returns.rolling(self.window).std().shift(1)
 
 
-class LaggedSquaredReturn(Feature):
 
+class LaggedSquaredReturn(Feature):
     def __init__(self, lag: int = 1) -> None:
         self.lag = lag
 
@@ -52,8 +53,8 @@ class LaggedSquaredReturn(Feature):
         return (returns ** 2).shift(self.lag)
 
 
-class ReturnMomentum(Feature):
 
+class ReturnMomentum(Feature):
     def __init__(self, window: int) -> None:
         self.window = window
 
@@ -67,8 +68,8 @@ class ReturnMomentum(Feature):
         return returns.rolling(self.window).sum().shift(1)
 
 
-class AbsReturnMean(Feature):
 
+class AbsReturnMean(Feature):
     def __init__(self, window: int) -> None:
         self.window = window
 
@@ -82,20 +83,13 @@ class AbsReturnMean(Feature):
         return returns.abs().rolling(self.window).mean().shift(1)
 
 
-class FeaturePipeline:
 
-    def __init__(
-        self,
-        features: list[Feature],
-        min_norm_window: int = 63,
-    ) -> None:
-        
+class FeaturePipeline:
+    def __init__(self, features: list[Feature], min_norm_window: int = 63) -> None:
         if not features:
             raise ValueError("FeaturePipeline requires at least one Feature.")
         self.features = features
         self.min_norm_window = min_norm_window
-
-        # Populated by fit()
         self._means: pd.Series | None = None   # (n_features,)
         self._stds:  pd.Series | None = None   # (n_features,)
 
@@ -111,19 +105,17 @@ class FeaturePipeline:
 
 
     def fit(self, returns: pd.Series) -> "FeaturePipeline":
-
         raw = self._compute_raw(returns)
         self._means = raw.mean()
         self._stds  = raw.std().replace(0, 1)   # avoid divide-by-zero for constant features
+        
         return self
 
 
     def transform(self, returns: pd.Series) -> Tensor:
-
         self._require_fitted()
         raw = self._compute_raw(returns)
         normalized = (raw - self._means) / self._stds
-
         normalized = normalized.ffill().fillna(0.0)
 
         return torch.tensor(normalized.values, dtype=torch.float32)
@@ -134,12 +126,10 @@ class FeaturePipeline:
 
 
     def _compute_raw(self, returns: pd.Series) -> pd.DataFrame:
-    
         columns = {f.name: f.compute(returns) for f in self.features}
         return pd.DataFrame(columns, index=returns.index)
 
 
     def _require_fitted(self) -> None:
-
         if self._means is None:
             raise RuntimeError("Call fit() or fit_transform() before transform().")
