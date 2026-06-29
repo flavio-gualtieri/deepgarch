@@ -18,7 +18,6 @@ from .config import TrainConfig
 
 @dataclass
 class TrainingResult:
-
     train_losses: list[float] = field(default_factory=list)
     val_losses: list[float] = field(default_factory=list)
     best_epoch: int = 0
@@ -56,18 +55,14 @@ class TrainingResult:
 # ---------------------------------------------------------------------------
 
 class Trainer:
-
     def __init__(self, model: GARCHNet, config: TrainConfig) -> None:
-    
         self.model = model
         self.config = config
-
         self.optimizer = torch.optim.Adam(
             model.parameters(),
             lr=config.learning_rate,
             weight_decay=config.weight_decay,
         )
-
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             self.optimizer,
             mode="min",
@@ -77,7 +72,6 @@ class Trainer:
 
 
     def _train_step(self, X: Tensor, returns: Tensor) -> float:
-
         self.model.train()
         self.optimizer.zero_grad()
 
@@ -95,7 +89,6 @@ class Trainer:
 
 
     def _eval_step(self, X: Tensor, returns: Tensor) -> float:
-
         self.model.eval()
         with torch.no_grad():
             loss = self.model(X, returns)
@@ -109,7 +102,6 @@ class Trainer:
         X_val: Tensor,
         returns_val: Tensor,
     ) -> TrainingResult:
-
         result = TrainingResult()
         checkpoint = Path(self.config.checkpoint_path)
         t0 = time.perf_counter()

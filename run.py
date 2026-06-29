@@ -77,7 +77,8 @@ paramnet = ParamNet(
 
 model = GARCHNet(
     paramnet=paramnet,
-    p=p, q=q,
+    p=p,
+     q=q,
     constraint="stationary",
     max_persistence=0.999,
 )
@@ -88,8 +89,6 @@ from deepgarch.train import Trainer, TrainConfig, TrainingResult
 from tqdm import tqdm
 
 class TqdmTrainer(Trainer):
-    """Trainer subclass that drives the epoch loop with a tqdm progress bar."""
-
     def fit(self, X_train, returns_train, X_val, returns_val):
         import time
         from pathlib import Path

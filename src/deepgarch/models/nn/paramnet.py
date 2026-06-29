@@ -5,11 +5,8 @@ from torch import Tensor
 
 
 class ParamNet(nn.Module):
-
     def __init__(self, embedding_dim: int, hidden_dims: list[int], n_params: int, dropout: float = 0.0):
-
         super().__init__()
-
         self._embedding_dim = embedding_dim
         self._hidden_dims = hidden_dims
         self._n_params = n_params
@@ -25,7 +22,6 @@ class ParamNet(nn.Module):
             input_dim = hidden_dim
         
         layers.append(nn.Linear(input_dim, n_params))
-
         self._mlp = nn.Sequential(*layers)
 
 

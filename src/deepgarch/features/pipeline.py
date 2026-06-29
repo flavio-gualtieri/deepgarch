@@ -9,7 +9,6 @@ import torch
 from torch import Tensor
 
 
-
 class Feature(ABC):
     @abstractmethod
     def compute(self, returns: pd.Series) -> pd.Series:
@@ -21,7 +20,6 @@ class Feature(ABC):
     def name(self) -> str:
         """A short human-readable name, used as the column label."""
         ...
-
 
 
 class RealizedVolatility(Feature):
@@ -38,7 +36,6 @@ class RealizedVolatility(Feature):
         return returns.rolling(self.window).std().shift(1)
 
 
-
 class LaggedSquaredReturn(Feature):
     def __init__(self, lag: int = 1) -> None:
         self.lag = lag
@@ -51,7 +48,6 @@ class LaggedSquaredReturn(Feature):
 
     def compute(self, returns: pd.Series) -> pd.Series:
         return (returns ** 2).shift(self.lag)
-
 
 
 class ReturnMomentum(Feature):
@@ -68,7 +64,6 @@ class ReturnMomentum(Feature):
         return returns.rolling(self.window).sum().shift(1)
 
 
-
 class AbsReturnMean(Feature):
     def __init__(self, window: int) -> None:
         self.window = window
@@ -81,7 +76,6 @@ class AbsReturnMean(Feature):
 
     def compute(self, returns: pd.Series) -> pd.Series:
         return returns.abs().rolling(self.window).mean().shift(1)
-
 
 
 class FeaturePipeline:
