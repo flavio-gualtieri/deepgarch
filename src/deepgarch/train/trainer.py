@@ -55,7 +55,7 @@ class TrainingResult:
 # ---------------------------------------------------------------------------
 
 class Trainer:
-    def __init__(self, model: GARCHNet, config: TrainConfig) -> None:
+    def __init__(self, model: nn.Module, config: TrainConfig) -> None:
         self.model = model
         self.config = config
         self.optimizer = torch.optim.Adam(
