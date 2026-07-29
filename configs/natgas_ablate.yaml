@@ -45,4 +45,4 @@ forecast:
 
 output:
   market: nat_gas-ablate
-  dir: plots_natgas_ablate
+  dir: results/ablations/natgas_ablate

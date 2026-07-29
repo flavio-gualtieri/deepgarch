@@ -1,0 +1,40 @@
+{
+  "spy GARCHNet": {
+    "qlike": -8.810237624666467,
+    "mse_variance": 1.8494554049421283e-08,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 289,
+      "n_violations": 6,
+      "violation_rate": 0.020761245674740483,
+      "expected_rate": 0.01,
+      "kupiec_lr": 2.5799642927622912,
+      "kupiec_pvalue": 0.10822410336545289
+    },
+    "calibration": {
+      "mean_z2": 1.0157373805573506,
+      "empirical_quantile": -2.79374109218219,
+      "scale_corrected_quant": -2.772014119346141,
+      "gaussian_quantile": -2.3263478740408408
+    }
+  },
+  "Static GARCH": {
+    "qlike": -8.95532030076263,
+    "mse_variance": 4.786218066838778e-09,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 289,
+      "n_violations": 4,
+      "violation_rate": 0.01384083044982699,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.3846148375046994,
+      "kupiec_pvalue": 0.5351437427692458
+    },
+    "calibration": {
+      "mean_z2": 0.8790120217492838,
+      "empirical_quantile": -2.6435549353685475,
+      "scale_corrected_quant": -2.8196222728010913,
+      "gaussian_quantile": -2.3263478740408408
+    }
+  }
+}
