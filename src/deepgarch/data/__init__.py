@@ -1,3 +1,3 @@
-from .loader import MarketData
+from .loader import ExogenousSource, MarketData
 
-__all__ = ["MarketData", "NaturalGasMarketData", "ExogenousSource"]
+__all__ = ["MarketData", "ExogenousSource"]

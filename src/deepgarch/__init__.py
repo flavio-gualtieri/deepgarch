@@ -1,3 +1,4 @@
+from .config import RunConfig
 from .data import MarketData
 from .eval import (
     StaticGARCH,
@@ -8,16 +9,18 @@ from .eval import (
     plot_volatility_comparison,
 )
 from .features import FeaturePipeline
-from .models import GARCHNet, ParamNet
-from .train import TrainConfig, Trainer, TrainingResult
+from .models import ConditionalGARCHNet, ParamNet
+from .train import TqdmTrainer, TrainConfig, Trainer, TrainingResult
 
 __all__ = [
+    "RunConfig",
     "MarketData",
     "FeaturePipeline",
-    "GARCHNet",
+    "ConditionalGARCHNet",
     "ParamNet",
     "TrainConfig",
     "Trainer",
+    "TqdmTrainer",
     "TrainingResult",
     "StaticGARCH",
     "evaluate",

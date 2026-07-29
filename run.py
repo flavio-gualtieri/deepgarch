@@ -1,269 +1,295 @@
+#!/usr/bin/env python
+"""Train, evaluate, and forecast a Conditional GARCHNet model from a YAML config.
+
+Usage:
+    python run.py --config configs/spy.yaml
+"""
+
 import warnings
 warnings.filterwarnings("ignore")
 
+import argparse
+import json
 import os
-import numpy as np
-import torch
+
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+import numpy as np
+import pandas as pd
+import torch
+from torch import Tensor
 
-torch.manual_seed(42)
-np.random.seed(42)
+from deepgarch.config import RunConfig
+from deepgarch.data import MarketData
+from deepgarch.eval import (
+    StaticGARCH,
+    comparison_table,
+    evaluate,
+    plot_parameter_paths,
+    plot_var_violations,
+    plot_volatility_comparison,
+)
+from deepgarch.features import FeaturePipeline
+from deepgarch.models import ConditionalGARCHNet, ParamNet
+from deepgarch.train.tqdm_trainer import TqdmTrainer
 
-PLOTS_DIR = "plots"
-os.makedirs(PLOTS_DIR, exist_ok=True)
 
-def savefig(name):
-    path = os.path.join(PLOTS_DIR, name)
+def to_return_tensor(frame: pd.DataFrame) -> Tensor:
+    return torch.tensor(frame["returns"].to_numpy(dtype=np.float32), dtype=torch.float32)
+
+
+def savefig(path: str) -> None:
     plt.savefig(path, dpi=150, bbox_inches="tight")
     plt.close()
-    print(f"  saved → {path}")
+    print(f"  saved -> {path}")
 
-# ── Data ─────────────────────────────────────────────────────────────────────
 
-from deepgarch.data import MarketData
+def run(config: RunConfig) -> None:
+    torch.manual_seed(config.seed)
+    np.random.seed(config.seed)
 
-data = MarketData(
-    ticker="SPY",
-    start="2021-06-23",
-    val_start="2024-01-01",
-    test_start="2025-06-01",
-).load()
+    plots_dir = config.output.dir
+    os.makedirs(plots_dir, exist_ok=True)
 
-# ── Features ─────────────────────────────────────────────────────────────────
+    # ---------------------------------------------------------------------
+    # Data
+    # ---------------------------------------------------------------------
 
-from deepgarch.features import (
-    FeaturePipeline,
-    RealizedVolatility,
-    LaggedSquaredReturn,
-    ReturnMomentum,
-    AbsReturnMean,
-)
+    data = MarketData(
+        ticker=config.data.ticker,
+        start=config.data.start,
+        end=config.data.end,
+        val_start=config.data.val_start,
+        test_start=config.data.test_start,
+        yahoo_aux_tickers=config.data.yahoo_aux_tickers,
+    ).load()
+    data.summary()
 
-pipeline = FeaturePipeline([
-    RealizedVolatility(5),
-    RealizedVolatility(22),
-    LaggedSquaredReturn(1),
-    LaggedSquaredReturn(5),
-    ReturnMomentum(5),
-    AbsReturnMean(10),
-])
+    # Drop only rows where target returns are unavailable; feature NaNs are
+    # handled by the pipeline.
+    train_frame = data.train.loc[data.train["returns"].notna()].copy()
+    val_frame = data.val.loc[data.val["returns"].notna()].copy()
+    test_frame = data.test.loc[data.test["returns"].notna()].copy()
+    all_frame = pd.concat([train_frame, val_frame, test_frame], axis=0)
 
-X_train = pipeline.fit_transform(data.train)
-X_val = pipeline.transform(data.val)
-X_test = pipeline.transform(data.test)
+    n_train, n_val = len(train_frame), len(val_frame)
+    test_start_idx = n_train + n_val
 
-# ── Tensors ───────────────────────────────────────────────────────────────────
+    # ---------------------------------------------------------------------
+    # Features
+    # ---------------------------------------------------------------------
 
-returns_train = torch.tensor(data.train.values, dtype=torch.float32)
-returns_val = torch.tensor(data.val.values, dtype=torch.float32)
-returns_test = torch.tensor(data.test.values,  dtype=torch.float32)
+    pipeline = FeaturePipeline(
+        return_windows=config.features.return_windows,
+        exogenous_lag=config.features.exogenous_lag,
+        include_seasonality=config.features.include_seasonality,
+    )
+    # Fit normalization on train only, then compute rolling features over the
+    # full chronological frame so validation/test starts can use prior history.
+    pipeline.fit(train_frame)
+    X_all = pipeline.transform(all_frame)
 
-# ── Model ─────────────────────────────────────────────────────────────────────
+    X_train = X_all[:n_train]
+    X_val = X_all[n_train : n_train + n_val]
 
-from deepgarch.models.nn import ParamNet
-from deepgarch.models import GARCHNet
+    returns_all = to_return_tensor(all_frame)
+    returns_train = returns_all[:n_train]
+    returns_val = returns_all[n_train : n_train + n_val]
+    returns_test = returns_all[test_start_idx:]
 
-p, q = 1, 1
+    print(f"\n[features] n_features={pipeline.n_features}")
+    print("first 15 features:", pipeline.feature_names[:15])
+    print(f"splits: train={len(returns_train)}, val={len(returns_val)}, test={len(returns_test)}")
 
-paramnet = ParamNet(
-    embedding_dim=pipeline.n_features,
-    hidden_dims=[32, 16],
-    n_params=1 + q + p,
-    dropout=0.1,
-)
+    # ---------------------------------------------------------------------
+    # Model
+    # ---------------------------------------------------------------------
 
-model = GARCHNet(
-    paramnet=paramnet,
-    p=p,
-     q=q,
-    constraint="stationary",
-    max_persistence=0.999,
-)
+    p, q = config.model.p, config.model.q
+    paramnet = ParamNet(
+        embedding_dim=pipeline.n_features,
+        hidden_dims=config.model.hidden_dims,
+        n_params=1 + q + p,
+        dropout=config.model.dropout,
+    )
+    model = ConditionalGARCHNet(
+        paramnet=paramnet,
+        p=p,
+        q=q,
+        constraint=config.model.constraint,
+        max_persistence=config.model.max_persistence,
+    )
+    model_config = {
+        "embedding_dim": pipeline.n_features,
+        "hidden_dims": config.model.hidden_dims,
+        "n_params": 1 + q + p,
+        "dropout": config.model.dropout,
+        "p": p,
+        "q": q,
+        "constraint": config.model.constraint,
+        "max_persistence": config.model.max_persistence,
+    }
 
-# ── Training ──────────────────────────────────────────────────────────────────
+    # ---------------------------------------------------------------------
+    # Training
+    # ---------------------------------------------------------------------
 
-from deepgarch.train import Trainer, TrainConfig, TrainingResult
-from tqdm import tqdm
+    trainer = TqdmTrainer(model, config.train)
+    result = trainer.fit(X_train, returns_train, X_val, returns_val)
+    trainer.save_artifact(market=config.output.market, model_config=model_config, artifacts_dir=plots_dir)
 
-class TqdmTrainer(Trainer):
-    def fit(self, X_train, returns_train, X_val, returns_val):
-        import time
-        from pathlib import Path
-
-        result = TrainingResult()
-        checkpoint = Path(self.config.checkpoint_path)
-        t0 = time.perf_counter()
-        epochs_without_improvement = 0
-
-        bar_fmt = "{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]{postfix}"
-
-        with tqdm(total=self.config.max_epochs, desc="training", unit="ep",
-                  bar_format=bar_fmt, dynamic_ncols=True) as pbar:
-
-            for epoch in range(self.config.max_epochs):
-                train_loss = self._train_step(X_train, returns_train)
-                val_loss   = self._eval_step(X_val, returns_val)
-                self.scheduler.step(val_loss)
-
-                result.train_losses.append(train_loss)
-                result.val_losses.append(val_loss)
-
-                improvement = result.best_val_loss - val_loss
-                if improvement > self.config.min_delta:
-                    result.best_val_loss = val_loss
-                    result.best_epoch    = epoch
-                    epochs_without_improvement = 0
-                    torch.save(self.model.state_dict(), checkpoint)
-                else:
-                    epochs_without_improvement += 1
-
-                lr = self.optimizer.param_groups[0]["lr"]
-                pbar.set_postfix(
-                    train=f"{train_loss:.2f}",
-                    val=f"{val_loss:.2f}",
-                    lr=f"{lr:.2e}",
-                    best=f"{result.best_val_loss:.2f}",
-                    refresh=False,
-                )
-                pbar.update(1)
-
-                if epochs_without_improvement >= self.config.patience:
-                    pbar.write(f"  early stop at epoch {epoch + 1}  (best val={result.best_val_loss:.4f})")
-                    result.stopped_early = True
-                    break
-
-        if checkpoint.exists():
-            self.model.load_state_dict(torch.load(checkpoint, weights_only=True))
-            checkpoint.unlink()
-
-        result.elapsed_seconds = time.perf_counter() - t0
-        return result
-
-config = TrainConfig(
-    max_epochs=500,
-    learning_rate=5e-3,
-    weight_decay=1e-4,
-    patience=100,
-    min_delta=1e-4,
-    grad_clip=1.0,
-    log_every=25,
-)
-
-trainer = TqdmTrainer(model, config)
-result  = trainer.fit(X_train, returns_train, X_val, returns_val)
-
-# plot: training curve
-print("\n[plots]")
-fig, ax = plt.subplots(figsize=(10, 4))
-ax.plot(result.train_losses, label="train NLL", linewidth=1.2)
-ax.plot(result.val_losses,   label="val NLL",   linewidth=1.2)
-ax.set_xlabel("Epoch")
-ax.set_ylabel("NLL")
-ax.set_title("Training curve")
-ax.legend()
-fig.tight_layout()
-savefig("01_training_curve.png")
-
-# ── Evaluation ────────────────────────────────────────────────────────────────
-
-from deepgarch.eval import evaluate, comparison_table, StaticGARCH
-
-model.eval()
-with torch.no_grad():
-    garch_test = model.build_garch(X_test)
-    neural_var = garch_test.filter(returns_test).numpy()
-
-neural_metrics = evaluate(data.test.values, neural_var)
-
-static_garch = StaticGARCH()
-static_garch.fit(data.train)
-static_var = static_garch.filter(data.test)
-static_metrics = evaluate(data.test.values, static_var)
-
-comparison_table({
-    "GARCHNet": neural_metrics,
-    "Static GARCH": static_metrics,
-})
-
-# plot: forecasted vol vs realised |return| (main plot)
-dates      = data.test.index
-realised   = np.abs(data.test.values)          # |r_t| as vol proxy
-neural_vol = np.sqrt(neural_var)
-static_vol = np.sqrt(static_var)
-
-fig, axes = plt.subplots(2, 1, figsize=(13, 8), sharex=True)
-
-# top panel — overlay
-axes[0].fill_between(dates, realised, alpha=0.25, color="grey", label="|return| (realised)")
-axes[0].plot(dates, neural_vol, linewidth=1.2, color="steelblue",  label="GARCHNet")
-axes[0].plot(dates, static_vol, linewidth=1.0, color="darkorange", linestyle="--", label="Static GARCH(1,1)")
-axes[0].set_ylabel("Daily volatility")
-axes[0].set_title("Forecasted σ vs. realised |return| — test set")
-axes[0].legend()
-
-# bottom panel — residuals (neural_vol − static_vol)
-axes[1].plot(dates, neural_vol - static_vol, linewidth=0.8, color="steelblue")
-axes[1].axhline(0, color="black", linewidth=0.7, linestyle="--")
-axes[1].set_ylabel("GARCHNet − Static GARCH")
-axes[1].set_title("Difference: GARCHNet over/under-estimates vs. static baseline")
-axes[1].xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
-axes[1].tick_params(axis="x", rotation=30)
-
-fig.tight_layout()
-savefig("02_forecast_vs_realised.png")
-
-# plot: VaR violations (99%)
-alpha_var = 0.01
-z99 = 2.326            # Φ⁻¹(0.01)
-rets = data.test.values
-
-for label, vol, fname in [
-    ("GARCHNet", neural_vol, "03_var_violations_garchnet.png"),
-    ("Static GARCH", static_vol, "04_var_violations_static.png"),
-]:
-    var_line   = -z99 * vol
-    violations = rets < var_line
-
-    fig, ax = plt.subplots(figsize=(13, 4))
-    ax.fill_between(dates, rets, 0, where=(rets < 0), alpha=0.3, color="grey", label="Negative return")
-    ax.plot(dates, var_line, linewidth=1.2, color="crimson", label="99% VaR")
-    ax.scatter(dates[violations], rets[violations], color="black", s=18, zorder=5,
-               label=f"Violations ({violations.sum()}, {violations.mean():.1%})")
-    ax.set_ylabel("Log-return")
-    ax.set_title(f"{label} — 99% VaR violations")
+    print("\n[plots]")
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.plot(result.train_losses, label="train NLL", linewidth=1.2)
+    ax.plot(result.val_losses, label="val NLL", linewidth=1.2)
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("NLL")
+    ax.set_title(f"{config.output.market} — training curve")
     ax.legend()
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
-    ax.tick_params(axis="x", rotation=30)
     fig.tight_layout()
-    savefig(fname)
+    savefig(os.path.join(plots_dir, "01_training_curve.png"))
 
-# ── Multi-step forecast ───────────────────────────────────────────────────────
+    # ---------------------------------------------------------------------
+    # Evaluation
+    # ---------------------------------------------------------------------
 
-h = 30
+    model.eval()
+    with torch.no_grad():
+        # Warmed-up path: run the variance recursion over train+val+test, then
+        # slice test — the t=0 seed still only depends on train returns.
+        diag_all = model.diagnostics(X_all, returns_all)
 
-with torch.no_grad():
-    garch_full = model.build_garch(torch.cat([X_train, X_val, X_test]))
-    all_returns = torch.cat([returns_train, returns_val, returns_test])
-    fcast_var = garch_full.forecast(all_returns, h=h).numpy()
+    neural_var_all = diag_all["sigma2"].detach().cpu().numpy()
+    neural_var = neural_var_all[test_start_idx:]
+    rets_test_np = returns_test.detach().cpu().numpy()
+    neural_metrics = evaluate(rets_test_np, neural_var)
 
-fcast_vol = np.sqrt(fcast_var) * np.sqrt(252)   # annualised
-terminal_vol = np.sqrt(neural_var[-1]) * np.sqrt(252)
+    static_garch = StaticGARCH()
+    static_garch.fit(train_frame["returns"])
+    static_var_all = np.asarray(static_garch.filter(all_frame["returns"]))
+    static_var = static_var_all[test_start_idx:]
+    static_metrics = evaluate(rets_test_np, static_var)
 
-# plot: forward vol curve
-fig, ax = plt.subplots(figsize=(9, 4))
-ax.plot(range(1, h + 1), fcast_vol, marker="o", markersize=4, linewidth=1.5,
-        color="steelblue", label="Forecast ann. vol")
-ax.axhline(terminal_vol, linestyle="--", color="grey", linewidth=1,
-           label=f"Last observed σ (ann.) = {terminal_vol:.1%}")
-ax.set_xlabel("Days ahead")
-ax.set_ylabel("Annualised volatility")
-ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
-ax.set_title(f"{h}-day forward volatility curve")
-ax.legend()
-fig.tight_layout()
-savefig("05_forward_vol_curve.png")
+    results = {f"{config.output.market} GARCHNet": neural_metrics, "Static GARCH": static_metrics}
+    print(comparison_table(results))
+    comparison_path = os.path.join(plots_dir, "comparison_metrics.json")
+    with open(comparison_path, "w") as f:
+        json.dump(results, f, indent=2)
 
-print("\nDone.")
+    # Save parameter diagnostics for interpretation.
+    params = pd.DataFrame(
+        {
+            "omega": diag_all["omega"].detach().cpu().numpy(),
+            "alpha": diag_all["alpha"].detach().cpu().numpy(),
+            "beta": diag_all["beta"].detach().cpu().numpy(),
+            "persistence": diag_all["persistence"].detach().cpu().numpy(),
+            "sigma2": diag_all["sigma2"].detach().cpu().numpy(),
+            "sigma": diag_all["sigma"].detach().cpu().numpy(),
+        },
+        index=all_frame.index,
+    )
+    params_path = os.path.join(plots_dir, "parameter_path.csv")
+    params.to_csv(params_path)
+    print(f"  saved -> {params_path}")
+
+    # ---------------------------------------------------------------------
+    # Plots
+    # ---------------------------------------------------------------------
+
+    dates = test_frame.index
+    events = config.output.events or None
+    params_test = params.iloc[test_start_idx:]
+
+    plot_volatility_comparison(
+        rets_test_np, neural_var, static_var=static_var, index=dates, events=events,
+        save_path=os.path.join(plots_dir, "02_forecast_vs_realised.png"),
+    )
+    print(f"  saved -> {plots_dir}/02_forecast_vs_realised.png")
+
+    plot_parameter_paths(
+        params_test["omega"], params_test["alpha"], params_test["beta"],
+        index=params_test.index, events=events,
+        save_path=os.path.join(plots_dir, "03_parameter_path.png"),
+    )
+    print(f"  saved -> {plots_dir}/03_parameter_path.png")
+
+    plot_var_violations(
+        rets_test_np, neural_var, alpha=0.01, index=dates,
+        save_path=os.path.join(plots_dir, "04_var_violations_neural.png"),
+    )
+    print(f"  saved -> {plots_dir}/04_var_violations_neural.png")
+
+    plot_var_violations(
+        rets_test_np, static_var, alpha=0.01, index=dates,
+        save_path=os.path.join(plots_dir, "05_var_violations_static.png"),
+    )
+    print(f"  saved -> {plots_dir}/05_var_violations_static.png")
+
+    # ---------------------------------------------------------------------
+    # Multi-step forecast: hold final parameter set fixed
+    # ---------------------------------------------------------------------
+
+    h = config.forecast.horizon
+    with torch.no_grad():
+        fcast_var, terminal_params = model.forecast_fixed_params(X_all, returns_all, h=h)
+
+    fcast_var_np = fcast_var.detach().cpu().numpy()
+    fcast_vol_ann = np.sqrt(fcast_var_np) * np.sqrt(252)
+    terminal_vol_ann = float(params["sigma"].iloc[-1] * np.sqrt(252))
+
+    print("\n[terminal parameters held fixed]")
+    for k, v in terminal_params.items():
+        print(f"  {k:<12} {float(v.detach().cpu()):.8f}")
+
+    fig, ax = plt.subplots(figsize=(9, 4))
+    ax.plot(range(1, h + 1), fcast_vol_ann, marker="o", markersize=4, linewidth=1.5, label="Forecast ann. vol")
+    ax.axhline(terminal_vol_ann, linestyle="--", linewidth=1, label=f"Last filtered ann. sigma = {terminal_vol_ann:.1%}")
+    ax.set_xlabel("Days ahead")
+    ax.set_ylabel("Annualised volatility")
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
+    ax.set_title(f"{config.output.market} — {h}-day forward volatility curve, final params held fixed")
+    ax.legend()
+    fig.tight_layout()
+    savefig(os.path.join(plots_dir, "06_forward_vol_curve_fixed_params.png"))
+
+    # ---------------------------------------------------------------------
+    # Optional regime summary: split the test period at a given date and
+    # compare average/peak volatility and persistence before vs. after.
+    # ---------------------------------------------------------------------
+
+    if config.output.regime_split:
+        split_date = pd.Timestamp(config.output.regime_split)
+        pre = params_test[params_test.index < split_date]
+        post = params_test[params_test.index >= split_date]
+
+        def ann_vol(sigma: pd.Series) -> float:
+            return float(sigma.mean() * np.sqrt(252))
+
+        summary = {
+            "pre_split_ann_vol": ann_vol(pre["sigma"]) if len(pre) else float("nan"),
+            "post_split_ann_vol_mean": ann_vol(post["sigma"]) if len(post) else float("nan"),
+            "post_split_ann_vol_peak": float(post["sigma"].max() * np.sqrt(252)) if len(post) else float("nan"),
+            "pre_split_persistence_mean": float(pre["persistence"].mean()) if len(pre) else float("nan"),
+            "post_split_persistence_mean": float(post["persistence"].mean()) if len(post) else float("nan"),
+            "current_persistence": float(params_test["persistence"].iloc[-1]),
+            "current_ann_vol": float(params_test["sigma"].iloc[-1] * np.sqrt(252)),
+            "forecast_horizon_ann_vol": float(fcast_vol_ann[-1]),
+        }
+        print(f"\n[regime summary — split at {split_date.date()}]")
+        for k, v in summary.items():
+            print(f"  {k:<28} {v}")
+        pd.Series(summary).to_csv(os.path.join(plots_dir, "regime_summary.csv"))
+
+    print("\nDone.")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--config", required=True, help="Path to a YAML run config.")
+    args = parser.parse_args()
+    run(RunConfig.from_yaml(args.config))
+
+
+if __name__ == "__main__":
+    main()

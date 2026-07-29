@@ -8,7 +8,7 @@ from torch import Tensor
 class VolatilityModel(ABC):
 
     @abstractmethod
-    def filter(self, returns: Tensor) -> Tensor:
+    def filter(self, returns: Tensor, initial_variance: Tensor | None = None) -> Tensor:
         ...
 
 
@@ -18,5 +18,5 @@ class VolatilityModel(ABC):
 
 
     @abstractmethod
-    def forecast(self, returns: Tensor, h: int) -> Tensor:
+    def forecast(self, returns: Tensor, h: int, initial_variance: Tensor | None = None) -> Tensor:
         ...

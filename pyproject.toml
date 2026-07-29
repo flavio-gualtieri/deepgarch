@@ -10,14 +10,17 @@ requires-python = ">=3.10"
 dependencies = [
     "torch>=2.2",
     "numpy>=1.26",
+    "pandas>=2.0",
+    "yfinance>=0.2",
+    "matplotlib>=3.8",
+    "arch>=6.0",
+    "tqdm>=4.65",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
-    "arch>=6.0",       # baseline static GARCH for comparison
-    "yfinance>=0.2",   # data fetching
-    "matplotlib>=3.8",
 ]
 
 [tool.setuptools.packages.find]

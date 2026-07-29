@@ -1,4 +1,4 @@
-# src/deepgarch/train/trainer.py
+# src/deepgarch/train/config.py
 
 """
 Training hyperparameters.
@@ -7,7 +7,7 @@ Kept in a separate module so experiments can be reproduced by saving /
 logging the config, independent of the trainer logic.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass

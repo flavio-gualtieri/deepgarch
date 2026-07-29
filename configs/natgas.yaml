@@ -1,0 +1,40 @@
+seed: 42
+
+data:
+  ticker: "NG=F"
+  start: "2005-01-01"
+  val_start: "2018-01-01"
+  test_start: "2021-01-01"
+  yahoo_aux_tickers:
+    crude: "CL=F"
+    heating_oil: "HO=F"
+    gasoline: "RB=F"
+
+features:
+  return_windows: [5, 10, 21, 63]
+  exogenous_lag: 1
+  include_seasonality: true
+
+model:
+  hidden_dims: [64, 32]
+  dropout: 0.10
+  p: 1
+  q: 1
+  constraint: stationary
+  max_persistence: 0.995
+
+train:
+  max_epochs: 500
+  learning_rate: 0.002
+  weight_decay: 0.0001
+  patience: 100
+  min_delta: 0.0001
+  grad_clip: 1.0
+  log_every: 25
+
+forecast:
+  horizon: 30
+
+output:
+  market: nat_gas
+  dir: plots_ng

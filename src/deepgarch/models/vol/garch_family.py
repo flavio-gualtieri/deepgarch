@@ -23,14 +23,14 @@ class GARCHFamily(VolatilityModel):
         return returns.var(unbiased=True)
 
 
-    def filter(self, returns: Tensor) -> Tensor:
+    def filter(self, returns: Tensor, initial_variance: Tensor | None = None) -> Tensor:
 
         T = returns.shape[0]
         if T == 0:
             raise ValueError("filter() received an empty return series (T=0).")
 
         variance_list: list[Tensor] = []
-        sigma2 = self.initial_variance(returns)
+        sigma2 = self.initial_variance(returns) if initial_variance is None else initial_variance
 
         for t in range(T):
             past_return   = returns[t - 1] if t > 0 else returns.new_zeros(())
@@ -52,9 +52,9 @@ class GARCHFamily(VolatilityModel):
         return ll.sum()
 
 
-    def forecast(self, returns: Tensor, h: int) -> Tensor:
+    def forecast(self, returns: Tensor, h: int, initial_variance: Tensor | None = None) -> Tensor:
 
-        variances = self.filter(returns)
+        variances = self.filter(returns, initial_variance=initial_variance)
         forecasts = torch.zeros(h, dtype=returns.dtype, device=returns.device)
         sigma2      = variances[-1]
         last_return = returns[-1]

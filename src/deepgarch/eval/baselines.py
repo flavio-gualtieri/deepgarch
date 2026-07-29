@@ -20,6 +20,7 @@ class StaticGARCH:
         self.alpha: float | None = None
         self.beta:  float | None = None
         self._fit_result = None
+        self._initial_variance: Tensor | None = None
 
     def fit(self, train_returns) -> "StaticGARCH":
 
@@ -34,6 +35,11 @@ class StaticGARCH:
         self.alpha = float(p["alpha[1]"])
         self.beta  = float(p["beta[1]"])
         self._fit_result = res
+
+        # Seed the recursion from train-only variance, so that filtering a
+        # longer (e.g. train+val+test) series for a warmed-up test slice
+        # doesn't leak val/test variance into the t=0 initial condition.
+        self._initial_variance = torch.tensor(_to_numpy(train_returns), dtype=torch.float32).var(unbiased=True)
         return self
 
     def filter(self, returns) -> np.ndarray:
@@ -47,7 +53,7 @@ class StaticGARCH:
             constraint="none",
         )
         with torch.no_grad():
-            return garch.filter(r).numpy()
+            return garch.filter(r, initial_variance=self._initial_variance).numpy()
 
     @property
     def persistence(self) -> float:

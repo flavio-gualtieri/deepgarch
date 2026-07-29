@@ -1,14 +1,13 @@
 # src/deepgarch/train/trainer.py
 
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 import torch
 import torch.nn as nn
 from torch import Tensor
 
-from ..models.garchnet import GARCHNet
 from .config import TrainConfig
 
 
@@ -27,11 +26,7 @@ class TrainingResult:
 
     def plot_losses(self) -> None:
         """Plot training and validation loss curves."""
-        try:
-            import matplotlib.pyplot as plt
-        except ImportError:
-            print("matplotlib not installed — run: pip install matplotlib")
-            return
+        import matplotlib.pyplot as plt
 
         epochs = range(1, len(self.train_losses) + 1)
         fig, ax = plt.subplots(figsize=(9, 4))
@@ -95,6 +90,47 @@ class Trainer:
         return loss.item()
 
 
+    # ------------------------------------------------------------------
+    # Progress-reporting hooks — override in subclasses (e.g. TqdmTrainer)
+    # to change how progress is displayed without re-implementing fit().
+    # ------------------------------------------------------------------
+
+    def _on_start(self) -> None:
+        pass
+
+    def _on_epoch(
+        self,
+        epoch: int,
+        train_loss: float,
+        val_loss: float,
+        lr: float,
+        best_val_loss: float,
+        epochs_without_improvement: int,
+    ) -> None:
+        if (epoch + 1) % self.config.log_every == 0 or epoch == 0:
+            print(
+                f"  epoch {epoch + 1:>4d} | "
+                f"train {train_loss:>10.4f} | "
+                f"val {val_loss:>10.4f} | "
+                f"best {best_val_loss:>10.4f} | "
+                f"lr {lr:.2e} | "
+                f"patience {epochs_without_improvement}/{self.config.patience}"
+            )
+
+    def _on_early_stop(self, epoch: int, best_val_loss: float) -> None:
+        print(f"\n  Early stopping at epoch {epoch + 1}.")
+
+    def _on_end(self) -> None:
+        pass
+
+    def _on_finish(self, result: TrainingResult) -> None:
+        print(
+            f"\n  Done. Best epoch: {result.best_epoch + 1} | "
+            f"best val loss: {result.best_val_loss:.4f} | "
+            f"elapsed: {result.elapsed_seconds:.1f}s"
+        )
+
+
     def fit(
         self,
         X_train: Tensor,
@@ -102,12 +138,16 @@ class Trainer:
         X_val: Tensor,
         returns_val: Tensor,
     ) -> TrainingResult:
+        if hasattr(self.model, "fit_initial_variance"):
+            self.model.fit_initial_variance(returns_train)
+
         result = TrainingResult()
         checkpoint = Path(self.config.checkpoint_path)
         t0 = time.perf_counter()
 
         epochs_without_improvement = 0
 
+        self._on_start()
         for epoch in range(self.config.max_epochs):
 
             # --- training step ---
@@ -131,22 +171,14 @@ class Trainer:
             else:
                 epochs_without_improvement += 1
 
-            # --- logging ---
-            if (epoch + 1) % self.config.log_every == 0 or epoch == 0:
-                lr = self.optimizer.param_groups[0]["lr"]
-                print(
-                    f"  epoch {epoch + 1:>4d} | "
-                    f"train {train_loss:>10.4f} | "
-                    f"val {val_loss:>10.4f} | "
-                    f"best {result.best_val_loss:>10.4f} | "
-                    f"lr {lr:.2e} | "
-                    f"patience {epochs_without_improvement}/{self.config.patience}"
-                )
+            lr = self.optimizer.param_groups[0]["lr"]
+            self._on_epoch(epoch, train_loss, val_loss, lr, result.best_val_loss, epochs_without_improvement)
 
             if epochs_without_improvement >= self.config.patience:
-                print(f"\n  Early stopping at epoch {epoch + 1}.")
+                self._on_early_stop(epoch, result.best_val_loss)
                 result.stopped_early = True
                 break
+        self._on_end()
 
         # Restore best weights
         if checkpoint.exists():
@@ -154,9 +186,20 @@ class Trainer:
             checkpoint.unlink()     # clean up — don't leave checkpoints on disk
 
         result.elapsed_seconds = time.perf_counter() - t0
-        print(
-            f"\n  Done. Best epoch: {result.best_epoch + 1} | "
-            f"best val loss: {result.best_val_loss:.4f} | "
-            f"elapsed: {result.elapsed_seconds:.1f}s"
-        )
+        self._on_finish(result)
         return result
+
+    def save_artifact(self, market: str, model_config: dict, artifacts_dir: str = "artifacts") -> Path:
+        save_path = Path(artifacts_dir) / f"{market}_model.pt"
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+
+        payload = {
+            "market": market,
+            "model_state_dict": self.model.state_dict(),
+            "model_config": model_config,
+            "train_config": asdict(self.config)
+        }
+
+        torch.save(payload, save_path)
+
+        return save_path
