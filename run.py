@@ -127,6 +127,7 @@ def run(config: RunConfig) -> None:
         constraint=config.model.constraint,
         max_persistence=config.model.max_persistence,
         s_max=config.model.s_max,
+        ablate_level_head=config.model.ablate_level_head,
     )
     model_config = {
         "embedding_dim": pipeline.n_features,
@@ -138,6 +139,7 @@ def run(config: RunConfig) -> None:
         "constraint": config.model.constraint,
         "max_persistence": config.model.max_persistence,
         "s_max": config.model.s_max,
+        "ablate_level_head": config.model.ablate_level_head,
     }
 
     # ---------------------------------------------------------------------

@@ -46,6 +46,7 @@ class ModelConfig:
     constraint: str = "stationary"
     max_persistence: float = 0.995
     s_max: float = 0.25
+    ablate_level_head: bool = False
 
 
 @dataclass

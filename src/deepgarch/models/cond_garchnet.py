@@ -18,6 +18,7 @@ class ConditionalGARCHNet(nn.Module):
         constraint: str = "stationary",
         max_persistence: float = 0.995,
         s_max: float = 0.25,
+        ablate_level_head: bool = False,
     ) -> None:
         super().__init__()
 
@@ -32,6 +33,7 @@ class ConditionalGARCHNet(nn.Module):
         self.constraint = constraint
         self.max_persistence = max_persistence
         self.s_max = s_max
+        self.ablate_level_head = ablate_level_head
         self.register_buffer("_initial_variance", torch.tensor(float("nan")))
         self.register_buffer("_v0", torch.tensor(float("nan")))
 
@@ -51,9 +53,11 @@ class ConditionalGARCHNet(nn.Module):
             )
 
         v_raw = raw[:, 0]
+        if self.ablate_level_head:
+            v_raw = torch.zeros_like(v_raw)
         rho_raw = raw[:, 1 : 1 + self.q]
         phi_raw = raw[:, 1 + self.q : 1 + self.q + self.p]
-        
+
         return v_raw, rho_raw, phi_raw
 
     def _constrain_path(

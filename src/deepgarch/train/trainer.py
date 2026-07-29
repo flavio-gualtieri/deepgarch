@@ -53,10 +53,19 @@ class Trainer:
     def __init__(self, model: nn.Module, config: TrainConfig) -> None:
         self.model = model
         self.config = config
+
+        decay, no_decay = [], []
+        for name, param in model.named_parameters():
+            if not param.requires_grad:
+                continue
+            (no_decay if name.endswith("bias") else decay).append(param)
+
         self.optimizer = torch.optim.Adam(
-            model.parameters(),
+            [
+                {"params": decay, "weight_decay": config.weight_decay},
+                {"params": no_decay, "weight_decay": 0.0},
+            ],
             lr=config.learning_rate,
-            weight_decay=config.weight_decay,
         )
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             self.optimizer,
