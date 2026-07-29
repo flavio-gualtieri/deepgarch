@@ -1,15 +1,15 @@
 {
   "nat_gas GARCHNet": {
-    "qlike": -5.146178644465465,
-    "mse_variance": 0.00016156805571052187,
+    "qlike": -2.4982044937991494,
+    "mse_variance": 0.00036261187336637286,
     "var": {
       "alpha": 0.01,
       "n_obs": 1400,
-      "n_violations": 21,
-      "violation_rate": 0.015,
+      "n_violations": 38,
+      "violation_rate": 0.027142857142857142,
       "expected_rate": 0.01,
-      "kupiec_lr": 3.0649477443870126,
-      "kupiec_pvalue": 0.07999773458640673
+      "kupiec_lr": 28.30619524642094,
+      "kupiec_pvalue": 1.0356400520337579e-07
     }
   },
   "Static GARCH": {

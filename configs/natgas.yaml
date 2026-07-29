@@ -21,9 +21,10 @@ model:
   p: 1
   q: 1
   rho_init: 4.95
-  phi_init: -2.75
+  phi_init: -1.15
   constraint: stationary
   max_persistence: 0.995
+  s_max: 0.25
 
 train:
   max_epochs: 1000

@@ -42,9 +42,10 @@ class ModelConfig:
     p: int = 1
     q: int = 1
     rho_init: float = 4.95
-    phi_init: float = -2.75
+    phi_init: float = -1.15
     constraint: str = "stationary"
     max_persistence: float = 0.995
+    s_max: float = 0.25
 
 
 @dataclass

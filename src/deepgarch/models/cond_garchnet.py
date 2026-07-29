@@ -2,7 +2,6 @@
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from torch import Tensor
 
@@ -18,6 +17,7 @@ class ConditionalGARCHNet(nn.Module):
         q: int = 1,
         constraint: str = "stationary",
         max_persistence: float = 0.995,
+        s_max: float = 0.25,
     ) -> None:
         super().__init__()
 
@@ -31,7 +31,9 @@ class ConditionalGARCHNet(nn.Module):
         self.q = q
         self.constraint = constraint
         self.max_persistence = max_persistence
+        self.s_max = s_max
         self.register_buffer("_initial_variance", torch.tensor(float("nan")))
+        self.register_buffer("_v0", torch.tensor(float("nan")))
 
         expected = 1 + q + p
         n_params = getattr(paramnet, "_n_params", None)
@@ -48,32 +50,36 @@ class ConditionalGARCHNet(nn.Module):
                 f"Expected raw shape (T, {expected}); got {tuple(raw.shape)}."
             )
 
-        omega_raw = raw[:, 0]
+        v_raw = raw[:, 0]
         rho_raw = raw[:, 1 : 1 + self.q]
         phi_raw = raw[:, 1 + self.q : 1 + self.q + self.p]
         
-        return omega_raw, rho_raw, phi_raw
+        return v_raw, rho_raw, phi_raw
 
     def _constrain_path(
         self,
-        omega_raw: Tensor,
+        v_raw: Tensor,
         rho_raw: Tensor,
         phi_raw: Tensor,
     ) -> tuple[Tensor, Tensor, Tensor, Tensor]:
-        eps = 1e-8
-
-        omega = F.softplus(omega_raw) + eps
-
+        if torch.isnan(self._v0):
+            raise RuntimeError(
+                "v0 is NaN"
+            )
+        
         rho = self.max_persistence * torch.sigmoid(rho_raw)
-        alpha = rho * torch.sigmoid(phi_raw)
+        alpha = rho * self.s_max * torch.sigmoid(phi_raw)
         beta = rho - alpha
+
+        sigma_bar2 = torch.exp(self._v0 + v_raw)
+        omega = (1 - rho[:, 0]) * sigma_bar2
         
         return omega, alpha, beta, rho
 
     def parameter_path(self, X: Tensor) -> tuple[Tensor, Tensor, Tensor, Tensor]:
         raw = self.paramnet(X)
-        omega_raw, rho_raw, phi_raw = self._split(raw)
-        return self._constrain_path(omega_raw, rho_raw, phi_raw)
+        v_raw, rho_raw, phi_raw = self._split(raw)
+        return self._constrain_path(v_raw, rho_raw, phi_raw)
 
     def fit_initial_variance(self, returns_train: Tensor) -> None:
         """Seed the variance recursion from the train split only.
@@ -86,6 +92,7 @@ class ConditionalGARCHNet(nn.Module):
         across every later call — train, val, test, or the full history.
         """
         self._initial_variance = returns_train.var(unbiased=False).clamp_min(1e-8).detach()
+        self._v0 = torch.log(self._initial_variance)
 
     def variance_path(
         self,
@@ -135,6 +142,7 @@ class ConditionalGARCHNet(nn.Module):
             "alpha": alpha_1,
             "beta": beta_1,
             "rho": rho_1,
+            "sigma_bar2": omega / (1 - rho[:, 0]),
             "alpha_share": alpha_1 / rho_1,
             "persistence": alpha_1 + beta_1,
             "sigma2": sigma2,

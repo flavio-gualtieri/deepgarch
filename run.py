@@ -115,6 +115,8 @@ def run(config: RunConfig) -> None:
     )
 
     with torch.no_grad():
+        paramnet._mlp[-1].weight.zero_()
+        paramnet._mlp[-1].bias.zero_()
         paramnet._mlp[-1].bias[1] = config.model.rho_init  # rho_raw:  sigmoid(3.0) ≈ 0.95 → rho_0 ≈ 0.95*max_persistence
         paramnet._mlp[-1].bias[2] = config.model.phi_init # phi_raw:  sigmoid(-3.0) ≈ 0.047 → alpha gets ~5% of rho, beta ~95%
 
@@ -124,6 +126,7 @@ def run(config: RunConfig) -> None:
         q=q,
         constraint=config.model.constraint,
         max_persistence=config.model.max_persistence,
+        s_max=config.model.s_max,
     )
     model_config = {
         "embedding_dim": pipeline.n_features,
@@ -134,6 +137,7 @@ def run(config: RunConfig) -> None:
         "q": q,
         "constraint": config.model.constraint,
         "max_persistence": config.model.max_persistence,
+        "s_max": config.model.s_max,
     }
 
     # ---------------------------------------------------------------------
@@ -188,9 +192,11 @@ def run(config: RunConfig) -> None:
             "omega": diag_all["omega"].detach().cpu().numpy(),
             "alpha": diag_all["alpha"].detach().cpu().numpy(),
             "beta": diag_all["beta"].detach().cpu().numpy(),
+            "rho": diag_all["rho"].detach().cpu().numpy(),
             "persistence": diag_all["persistence"].detach().cpu().numpy(),
             "sigma2": diag_all["sigma2"].detach().cpu().numpy(),
             "sigma": diag_all["sigma"].detach().cpu().numpy(),
+            "sigma_bar2": diag_all["sigma_bar2"].detach().cpu().numpy(),
         },
         index=all_frame.index,
     )
