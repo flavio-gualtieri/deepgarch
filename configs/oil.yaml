@@ -46,7 +46,7 @@ forecast:
 
 output:
   market: oil
-  dir: plots_oil
+  dir: results/oil
   regime_split: "2026-02-28"
   events:
     "US-Israel strikes begin": "2026-02-28"

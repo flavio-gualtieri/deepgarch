@@ -15,26 +15,30 @@ def _to_numpy(x) -> np.ndarray:
 # Forecast-accuracy metrics
 # ---------------------------------------------------------------------------
 
-def qlike(returns, forecast_var) -> float:
-
-    r = _to_numpy(returns)
+def qlike(realized_var, forecast_var) -> float:
+    """
+    QLIKE loss against a realized-variance proxy (e.g. Parkinson range
+    variance), not the squared-return proxy — squared returns are an
+    unbiased but very noisy daily variance estimator.
+    """
+    rv = _to_numpy(realized_var)
     h = _to_numpy(forecast_var)
     if np.any(h <= 0):
         raise ValueError("forecast_var must be strictly positive.")
-    return float(np.mean(np.log(h) + r ** 2 / h))
+    return float(np.mean(np.log(h) + rv / h))
 
 
-def mse_variance(returns, forecast_var) -> float:
+def mse_variance(realized_var, forecast_var) -> float:
     """
-    Mean squared error between the squared-return proxy and forecast variance.
+    Mean squared error between a realized-variance proxy and forecast variance.
 
-        MSE = (1/T) Σ (ε²_t − h_t)²
+        MSE = (1/T) Σ (RV_t − h_t)²
 
     A simple, scale-sensitive view that complements QLIKE. Lower is better.
     """
-    r = _to_numpy(returns)
+    rv = _to_numpy(realized_var)
     h = _to_numpy(forecast_var)
-    return float(np.mean((r ** 2 - h) ** 2))
+    return float(np.mean((rv - h) ** 2))
 
 
 # ---------------------------------------------------------------------------
@@ -104,17 +108,22 @@ def residual_calibration(returns, forecast_var, alpha):
 # Bundling and comparison
 # ---------------------------------------------------------------------------
 
-def evaluate(returns, forecast_var, alpha: float = 0.01) -> dict:
+def evaluate(returns, forecast_var, realized_var, alpha: float = 0.01) -> dict:
     """
     Compute all metrics for a single model's forecasts.
+
+    `realized_var` is the realized-variance proxy used for QLIKE/MSE (e.g.
+    Parkinson range variance); `returns` still drives the VaR backtest and
+    residual calibration, which score actual realized outcomes, not a
+    variance proxy.
 
     Returns
     -------
     dict with keys: qlike, mse_variance, var (the var_backtest dict).
     """
     return {
-        "qlike":        qlike(returns, forecast_var),
-        "mse_variance": mse_variance(returns, forecast_var),
+        "qlike":        qlike(realized_var, forecast_var),
+        "mse_variance": mse_variance(realized_var, forecast_var),
         "var":          var_backtest(returns, forecast_var, alpha=alpha),
         "calibration": residual_calibration(returns, forecast_var, alpha=alpha),
     }

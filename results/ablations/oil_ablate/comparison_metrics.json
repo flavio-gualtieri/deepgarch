@@ -1,7 +1,7 @@
 {
   "oil-ablate GARCHNet": {
-    "qlike": -6.013727825732706,
-    "mse_variance": 1.0242589611590288e-05,
+    "qlike": -5.981726253998064,
+    "mse_variance": 1.708548495527339e-05,
     "var": {
       "alpha": 0.01,
       "n_obs": 194,
@@ -19,8 +19,8 @@
     }
   },
   "Static GARCH": {
-    "qlike": -6.019794166068587,
-    "mse_variance": 1.030488242947371e-05,
+    "qlike": -6.03653416704768,
+    "mse_variance": 1.6760346144006482e-05,
     "var": {
       "alpha": 0.01,
       "n_obs": 194,

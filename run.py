@@ -174,13 +174,14 @@ def run(config: RunConfig) -> None:
     neural_var_all = diag_all["sigma2"].detach().cpu().numpy()
     neural_var = neural_var_all[test_start_idx:]
     rets_test_np = returns_test.detach().cpu().numpy()
-    neural_metrics = evaluate(rets_test_np, neural_var)
+    parkinson_var_test = all_frame["parkinson_var"].to_numpy()[test_start_idx:]
+    neural_metrics = evaluate(rets_test_np, neural_var, parkinson_var_test)
 
     static_garch = StaticGARCH()
     static_garch.fit(train_frame["returns"])
     static_var_all = np.asarray(static_garch.filter(all_frame["returns"]))
     static_var = static_var_all[test_start_idx:]
-    static_metrics = evaluate(rets_test_np, static_var)
+    static_metrics = evaluate(rets_test_np, static_var, parkinson_var_test)
 
     results = {f"{config.output.market} GARCHNet": neural_metrics, "Static GARCH": static_metrics}
     print(comparison_table(results))

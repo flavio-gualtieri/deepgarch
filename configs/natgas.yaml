@@ -40,4 +40,4 @@ forecast:
 
 output:
   market: nat_gas
-  dir: plots_natgas
+  dir: results/natgas

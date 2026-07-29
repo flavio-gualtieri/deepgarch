@@ -33,4 +33,4 @@ forecast:
 
 output:
   market: spy
-  dir: plots
+  dir: results/spy
