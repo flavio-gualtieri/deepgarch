@@ -41,6 +41,8 @@ class ModelConfig:
     dropout: float = 0.10
     p: int = 1
     q: int = 1
+    rho_init: float = 4.95
+    phi_init: float = -2.75
     constraint: str = "stationary"
     max_persistence: float = 0.995
 

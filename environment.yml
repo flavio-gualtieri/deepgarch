@@ -3,3 +3,15 @@ channels:
   - conda-forge
 dependencies:
   - python=3.11
+  - pip
+  - pip:
+      - torch>=2.2
+      - numpy>=1.26
+      - pandas>=2.0
+      - yfinance>=0.2
+      - matplotlib>=3.8
+      - arch>=6.0
+      - tqdm>=4.65
+      - pyyaml>=6.0
+      - pyarrow>=14.0
+      - pytest>=8.0

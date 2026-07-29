@@ -121,6 +121,19 @@ class MarketData:
         safe_ticker = re.sub(r"[^A-Za-z0-9_.-]+", "_", ticker.upper())
         return _DOWNLOAD_DIR / f"{safe_ticker}_{suffix}_{start}_{end}.parquet"
 
+    def _latest_cache_path(self, ticker: str, suffix: str) -> Path | None:
+        """Newest cached file for this ticker/suffix/start, regardless of its end date.
+
+        The cache filename embeds `end`, which defaults to "today" — so a fresh
+        run on a new day never matches yesterday's file exactly. Falling back to
+        the most recent match lets us keep working (with slightly stale data)
+        when a live download fails, e.g. due to yfinance rate limiting.
+        """
+        start = pd.Timestamp(self.start).date().isoformat()
+        safe_ticker = re.sub(r"[^A-Za-z0-9_.-]+", "_", ticker.upper())
+        candidates = sorted(_DOWNLOAD_DIR.glob(f"{safe_ticker}_{suffix}_{start}_*.parquet"))
+        return candidates[-1] if candidates else None
+
     def _download_target_ohlcv(self) -> pd.DataFrame:
         cache_file = self._cache_path(self.ticker, "ohlcv")
         if cache_file.exists():
@@ -130,15 +143,22 @@ class MarketData:
             cache_file.unlink(missing_ok=True)
 
         print(f"[{self.ticker}] Downloading OHLCV {self.start} → {self.end} via yfinance…")
-        raw = yf.download(
-            self.ticker,
-            start=self.start,
-            end=self.end,
-            auto_adjust=False,
-            progress=False,
-            threads=False,
-        )
+        try:
+            raw = yf.download(
+                self.ticker,
+                start=self.start,
+                end=self.end,
+                auto_adjust=False,
+                progress=False,
+                threads=False,
+            )
+        except Exception:
+            raw = pd.DataFrame()
         if raw.empty:
+            fallback = self._latest_cache_path(self.ticker, "ohlcv")
+            if fallback is not None:
+                print(f"[{self.ticker}] Download failed; falling back to stale cache {fallback.name}")
+                return pd.read_parquet(fallback).sort_index()
             raise ValueError(f"yfinance returned no data for {self.ticker!r}.")
 
         raw = self._flatten_yfinance_columns(raw)
@@ -172,21 +192,30 @@ class MarketData:
             close = pd.read_parquet(cache_file)["close"].sort_index()
         else:
             print(f"[{ticker}] Downloading auxiliary series for {name}…")
-            raw = yf.download(
-                ticker,
-                start=self.start,
-                end=self.end,
-                auto_adjust=True,
-                progress=False,
-                threads=False,
-            )
+            try:
+                raw = yf.download(
+                    ticker,
+                    start=self.start,
+                    end=self.end,
+                    auto_adjust=True,
+                    progress=False,
+                    threads=False,
+                )
+            except Exception:
+                raw = pd.DataFrame()
             if raw.empty:
-                raise ValueError(f"yfinance returned no data for auxiliary ticker {ticker!r}.")
-            raw = self._flatten_yfinance_columns(raw)
-            close = raw["Close"].rename("close").sort_index()
-            if close.index.tz is not None:
-                close.index = close.index.tz_localize(None)
-            close.to_frame("close").to_parquet(cache_file)
+                fallback = self._latest_cache_path(ticker, f"aux_{name}")
+                if fallback is not None:
+                    print(f"[{ticker}] Download failed; falling back to stale cache {fallback.name}")
+                    close = pd.read_parquet(fallback)["close"].sort_index()
+                else:
+                    raise ValueError(f"yfinance returned no data for auxiliary ticker {ticker!r}.")
+            else:
+                raw = self._flatten_yfinance_columns(raw)
+                close = raw["Close"].rename("close").sort_index()
+                if close.index.tz is not None:
+                    close.index = close.index.tz_localize(None)
+                close.to_frame("close").to_parquet(cache_file)
 
         close = close.rename(f"{name}_close")
         ret = np.log(close / close.shift(1)).rename(f"{name}_ret")

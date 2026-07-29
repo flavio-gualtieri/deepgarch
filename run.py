@@ -113,6 +113,11 @@ def run(config: RunConfig) -> None:
         n_params=1 + q + p,
         dropout=config.model.dropout,
     )
+
+    with torch.no_grad():
+        paramnet._mlp[-1].bias[1] = config.model.rho_init  # rho_raw:  sigmoid(3.0) ≈ 0.95 → rho_0 ≈ 0.95*max_persistence
+        paramnet._mlp[-1].bias[2] = config.model.phi_init # phi_raw:  sigmoid(-3.0) ≈ 0.047 → alpha gets ~5% of rho, beta ~95%
+
     model = ConditionalGARCHNet(
         paramnet=paramnet,
         p=p,

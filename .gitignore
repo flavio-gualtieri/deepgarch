@@ -5,6 +5,8 @@ __pycache__/
 dist/
 build/
 .eggs/
+.vscode/
+.claude/
 
 # Environments (never commit these)
 .env
@@ -23,7 +25,6 @@ data/processed/
 .DS_Store
 
 
-# random
-deepgarch_walkthrough.ipynb
-
+# Junk
 docs/
+notebooks/

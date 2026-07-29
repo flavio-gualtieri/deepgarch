@@ -20,11 +20,13 @@ model:
   dropout: 0.10
   p: 1
   q: 1
+  rho_init: 4.95
+  phi_init: -2.75
   constraint: stationary
   max_persistence: 0.995
 
 train:
-  max_epochs: 500
+  max_epochs: 1000
   learning_rate: 0.002
   weight_decay: 0.0001
   patience: 100

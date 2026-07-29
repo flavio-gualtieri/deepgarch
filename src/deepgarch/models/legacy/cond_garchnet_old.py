@@ -49,31 +49,38 @@ class ConditionalGARCHNet(nn.Module):
             )
 
         omega_raw = raw[:, 0]
-        rho_raw = raw[:, 1 : 1 + self.q]
-        phi_raw = raw[:, 1 + self.q : 1 + self.q + self.p]
-        
-        return omega_raw, rho_raw, phi_raw
+        alpha_raw = raw[:, 1 : 1 + self.q]
+        beta_raw = raw[:, 1 + self.q : 1 + self.q + self.p]
+        return omega_raw, alpha_raw, beta_raw
 
     def _constrain_path(
         self,
         omega_raw: Tensor,
-        rho_raw: Tensor,
-        phi_raw: Tensor,
-    ) -> tuple[Tensor, Tensor, Tensor, Tensor]:
+        alpha_raw: Tensor,
+        beta_raw: Tensor,
+    ) -> tuple[Tensor, Tensor, Tensor]:
         eps = 1e-8
+
+        if self.constraint == "none":
+            return omega_raw, alpha_raw, beta_raw
 
         omega = F.softplus(omega_raw) + eps
 
-        rho = self.max_persistence * torch.sigmoid(rho_raw)
-        alpha = rho * torch.sigmoid(phi_raw)
-        beta = rho - alpha
-        
-        return omega, alpha, beta, rho
+        if self.constraint == "positive":
+            return omega, F.softplus(alpha_raw), F.softplus(beta_raw)
 
-    def parameter_path(self, X: Tensor) -> tuple[Tensor, Tensor, Tensor, Tensor]:
+        slack = alpha_raw.new_zeros(alpha_raw.shape[0], 1)
+        logits = torch.cat([alpha_raw, beta_raw, slack], dim=-1)
+        weights = torch.softmax(logits, dim=-1) * self.max_persistence
+
+        alpha = weights[:, : self.q]
+        beta = weights[:, self.q : self.q + self.p]
+        return omega, alpha, beta
+
+    def parameter_path(self, X: Tensor) -> tuple[Tensor, Tensor, Tensor]:
         raw = self.paramnet(X)
-        omega_raw, rho_raw, phi_raw = self._split(raw)
-        return self._constrain_path(omega_raw, rho_raw, phi_raw)
+        omega_raw, alpha_raw, beta_raw = self._split(raw)
+        return self._constrain_path(omega_raw, alpha_raw, beta_raw)
 
     def fit_initial_variance(self, returns_train: Tensor) -> None:
         """Seed the variance recursion from the train split only.
@@ -125,17 +132,14 @@ class ConditionalGARCHNet(nn.Module):
         return 0.5 * torch.mean(torch.log(sigma2) + returns.pow(2) / sigma2)
 
     def diagnostics(self, X: Tensor, returns: Tensor) -> dict[str, Tensor]:
-        omega, alpha, beta, rho = self.parameter_path(X)
+        omega, alpha, beta = self.parameter_path(X)
         sigma2 = self.variance_path(returns, omega, alpha, beta)
         alpha_1 = alpha[:, 0]
         beta_1 = beta[:, 0]
-        rho_1 = rho[:, 0]
         return {
             "omega": omega,
             "alpha": alpha_1,
             "beta": beta_1,
-            "rho": rho_1,
-            "alpha_share": alpha_1 / rho_1,
             "persistence": alpha_1 + beta_1,
             "sigma2": sigma2,
             "sigma": torch.sqrt(sigma2),
@@ -155,7 +159,7 @@ class ConditionalGARCHNet(nn.Module):
         omega_T = diag["omega"][-1]
         alpha_T = diag["alpha"][-1]
         beta_T = diag["beta"][-1]
-        rho_T = diag["rho"][-1]
+        persistence_T = alpha_T + beta_T
 
         sigma2_next = (
             omega_T
@@ -165,14 +169,14 @@ class ConditionalGARCHNet(nn.Module):
 
         forecasts = [sigma2_next]
         for _ in range(1, h):
-            sigma2_next = (omega_T + rho_T * sigma2_next).clamp_min(1e-8)
+            sigma2_next = (omega_T + persistence_T * sigma2_next).clamp_min(1e-8)
             forecasts.append(sigma2_next)
 
         params_T = {
             "omega": omega_T,
             "alpha": alpha_T,
             "beta": beta_T,
-            "rho": rho_T,
+            "persistence": persistence_T,
             "last_sigma2": diag["sigma2"][-1],
         }
         return torch.stack(forecasts), params_T
@@ -182,6 +186,6 @@ class ConditionalGARCHNet(nn.Module):
             raise ValueError(
                 f"X has {X.shape[0]} timesteps but returns has {returns.shape[0]}."
             )
-        omega, alpha, beta, _rho = self.parameter_path(X)
+        omega, alpha, beta = self.parameter_path(X)
         sigma2 = self.variance_path(returns, omega, alpha, beta)
         return self.negative_loglikelihood(returns, sigma2)
