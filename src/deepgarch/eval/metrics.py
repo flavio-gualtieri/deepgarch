@@ -79,6 +79,27 @@ def var_backtest(returns, forecast_var, alpha: float = 0.01) -> dict:
     }
 
 
+def residual_calibration(returns, forecast_var, alpha):
+    r = _to_numpy(returns)
+    h = _to_numpy(forecast_var)
+    sigma = np.sqrt(h)
+    z = r / sigma
+
+    mean_z2 = np.mean(z**2)
+
+    empirical_quantile = np.quantile(z, alpha)
+    scale_corrected_quant = empirical_quantile / np.sqrt(mean_z2)
+    gaussian_quantile = NormalDist().inv_cdf(alpha)
+
+    return {
+        "mean_z2": mean_z2,
+        "empirical_quantile": empirical_quantile,
+        "scale_corrected_quant": scale_corrected_quant,
+        "gaussian_quantile": gaussian_quantile,
+    }
+
+
+
 # ---------------------------------------------------------------------------
 # Bundling and comparison
 # ---------------------------------------------------------------------------
@@ -95,21 +116,24 @@ def evaluate(returns, forecast_var, alpha: float = 0.01) -> dict:
         "qlike":        qlike(returns, forecast_var),
         "mse_variance": mse_variance(returns, forecast_var),
         "var":          var_backtest(returns, forecast_var, alpha=alpha),
+        "calibration": residual_calibration(returns, forecast_var, alpha=alpha),
     }
 
 
 def comparison_table(results: dict[str, dict]) -> str:
 
-    header = f"{'model':<16} {'QLIKE':>12} {'MSE(var)':>14} {'VaR viol.':>12} {'Kupiec p':>10}"
+    header = f"{'model':<16} {'QLIKE':>12} {'MSE(var)':>14} {'VaR viol.':>12} {'Kupiec p':>10} {'z2 bias':>10}"
     lines = [header, "-" * len(header)]
     for name, res in results.items():
         v = res["var"]
+        c = res["calibration"]
         lines.append(
             f"{name:<16} "
             f"{res['qlike']:>12.4f} "
             f"{res['mse_variance']:>14.3e} "
             f"{v['violation_rate']:>11.2%} "
-            f"{v['kupiec_pvalue']:>10.3f}"
+            f"{v['kupiec_pvalue']:>10.3f} "
+            f"{c['mean_z2']:>10.3f}"
         )
     # Annotate the expected violation rate for reference.
     any_var = next(iter(results.values()))["var"]
