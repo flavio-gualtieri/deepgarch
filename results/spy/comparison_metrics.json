@@ -1,21 +1,31 @@
 {
   "spy GARCHNet": {
-    "qlike": -8.810237624666467,
-    "mse_variance": 1.8494554049421283e-08,
+    "qlike": -9.02160099520409,
+    "mse_variance": 3.86195410641821e-09,
     "var": {
       "alpha": 0.01,
       "n_obs": 289,
-      "n_violations": 6,
-      "violation_rate": 0.020761245674740483,
+      "n_violations": 4,
+      "violation_rate": 0.01384083044982699,
       "expected_rate": 0.01,
-      "kupiec_lr": 2.5799642927622912,
-      "kupiec_pvalue": 0.10822410336545289
+      "kupiec_lr": 0.3846148375046994,
+      "kupiec_pvalue": 0.5351437427692458
     },
     "calibration": {
-      "mean_z2": 1.0157373805573506,
-      "empirical_quantile": -2.79374109218219,
-      "scale_corrected_quant": -2.772014119346141,
+      "mean_z2": 0.8795275295391127,
+      "empirical_quantile": -2.7415385188022023,
+      "scale_corrected_quant": -2.9232747365333593,
       "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 289,
+      "n_violations": 4,
+      "lr_uc": 0.3846148375046994,
+      "lr_ind": 0.11267978195455441,
+      "lr_cc": 0.4972946194592538,
+      "p_ind": 0.7371136276525365,
+      "p_cc": 0.7798549721481344
     }
   },
   "Static GARCH": {
@@ -35,6 +45,16 @@
       "empirical_quantile": -2.6435549353685475,
       "scale_corrected_quant": -2.8196222728010913,
       "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 289,
+      "n_violations": 4,
+      "lr_uc": 0.3846148375046994,
+      "lr_ind": 0.11267978195455441,
+      "lr_cc": 0.4972946194592538,
+      "p_ind": 0.7371136276525365,
+      "p_cc": 0.7798549721481344
     }
   }
 }

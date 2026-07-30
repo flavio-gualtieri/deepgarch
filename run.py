@@ -186,8 +186,14 @@ def run(config: RunConfig) -> None:
     results = {f"{config.output.market} GARCHNet": neural_metrics, "Static GARCH": static_metrics}
     print(comparison_table(results))
     comparison_path = os.path.join(plots_dir, "comparison_metrics.json")
+    # Per-observation *_series entries are ndarrays (for DM/MCS tests downstream,
+    # not for this summary file) and aren't JSON-serializable — drop them here.
+    summary = {
+        name: {k: v for k, v in metrics.items() if not isinstance(v, np.ndarray)}
+        for name, metrics in results.items()
+    }
     with open(comparison_path, "w") as f:
-        json.dump(results, f, indent=2)
+        json.dump(summary, f, indent=2)
 
     # Save parameter diagnostics for interpretation.
     params = pd.DataFrame(
