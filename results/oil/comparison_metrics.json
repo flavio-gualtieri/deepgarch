@@ -1,21 +1,31 @@
 {
   "oil GARCHNet": {
-    "qlike": -5.985561626117975,
-    "mse_variance": 1.638631074663267e-05,
+    "qlike": -5.9785961285756635,
+    "mse_variance": 1.709794723739887e-05,
     "var": {
       "alpha": 0.01,
       "n_obs": 194,
-      "n_violations": 5,
-      "violation_rate": 0.02577319587628866,
+      "n_violations": 7,
+      "violation_rate": 0.03608247422680412,
       "expected_rate": 0.01,
-      "kupiec_lr": 3.3965139128189605,
-      "kupiec_pvalue": 0.06533436160646881
+      "kupiec_lr": 7.979607286861281,
+      "kupiec_pvalue": 0.004730720311416794
     },
     "calibration": {
-      "mean_z2": 1.1061442175162834,
-      "empirical_quantile": -2.7727274958573793,
-      "scale_corrected_quant": -2.6363393529515884,
+      "mean_z2": 1.1530021146319303,
+      "empirical_quantile": -2.592866507973389,
+      "scale_corrected_quant": -2.414710697382125,
       "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 194,
+      "n_violations": 7,
+      "lr_uc": 7.979607286861281,
+      "lr_ind": 0.5270061656544129,
+      "lr_cc": 8.506613452515694,
+      "p_ind": 0.4678682562488206,
+      "p_cc": 0.014217143891990726
     }
   },
   "Static GARCH": {
@@ -35,6 +45,16 @@
       "empirical_quantile": -2.6928666911858774,
       "scale_corrected_quant": -2.517689636935205,
       "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 194,
+      "n_violations": 6,
+      "lr_uc": 5.515294450999882,
+      "lr_ind": 0.38509282828394475,
+      "lr_cc": 5.900387279283827,
+      "p_ind": 0.534890164661953,
+      "p_cc": 0.0523295718877243
     }
   }
 }

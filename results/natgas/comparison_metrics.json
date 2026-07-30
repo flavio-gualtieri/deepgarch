@@ -1,40 +1,60 @@
 {
   "nat_gas GARCHNet": {
-    "qlike": -5.506074885866689,
-    "mse_variance": 1.3462509520176772e-05,
+    "qlike": -5.507350036246548,
+    "mse_variance": 1.3453204060005607e-05,
     "var": {
       "alpha": 0.01,
-      "n_obs": 1400,
+      "n_obs": 1401,
       "n_violations": 20,
-      "violation_rate": 0.014285714285714285,
+      "violation_rate": 0.014275517487508922,
       "expected_rate": 0.01,
-      "kupiec_lr": 2.293009345418483,
-      "kupiec_pvalue": 0.12995773302268612
+      "kupiec_lr": 2.2843428892255986,
+      "kupiec_pvalue": 0.13068548026773272
     },
     "calibration": {
-      "mean_z2": 1.3611992611505885,
-      "empirical_quantile": -2.664237950640745,
-      "scale_corrected_quant": -2.283558584929482,
+      "mean_z2": 1.3607521244427574,
+      "empirical_quantile": -2.663838474552725,
+      "scale_corrected_quant": -2.283591284146654,
       "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 1401,
+      "n_violations": 20,
+      "lr_uc": 2.2843428892255986,
+      "lr_ind": 0.5797304403435817,
+      "lr_cc": 2.8640733295691803,
+      "p_ind": 0.44641799910610613,
+      "p_cc": 0.23882202617952022
     }
   },
   "Static GARCH": {
-    "qlike": -5.461922225946228,
-    "mse_variance": 1.895512717855232e-05,
+    "qlike": -5.4631851726185845,
+    "mse_variance": 1.8941942582429528e-05,
     "var": {
       "alpha": 0.01,
-      "n_obs": 1400,
+      "n_obs": 1401,
       "n_violations": 17,
-      "violation_rate": 0.012142857142857143,
+      "violation_rate": 0.012134189864382585,
       "expected_rate": 0.01,
-      "kupiec_lr": 0.6078026876327556,
-      "kupiec_pvalue": 0.43561633858712806
+      "kupiec_lr": 0.6034777673426959,
+      "kupiec_pvalue": 0.43725416838529124
     },
     "calibration": {
-      "mean_z2": 1.1773489356707487,
-      "empirical_quantile": -2.4551031658121483,
-      "scale_corrected_quant": -2.262648794536529,
+      "mean_z2": 1.1770012383515638,
+      "empirical_quantile": -2.453285014274177,
+      "scale_corrected_quant": -2.261307098823743,
       "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 1401,
+      "n_violations": 17,
+      "lr_uc": 0.6034777673426959,
+      "lr_ind": 0.4179425571065849,
+      "lr_cc": 1.0214203244492808,
+      "p_ind": 0.5179654576251926,
+      "p_cc": 0.6000692809243744
     }
   }
 }
