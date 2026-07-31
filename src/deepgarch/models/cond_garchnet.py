@@ -18,6 +18,7 @@ class ConditionalGARCHNet(nn.Module):
         constraint: str = "stationary",
         max_persistence: float = 0.995,
         s_max: float = 0.25,
+        v_max: float = 3.0,
         ablate_level_head: bool = False,
     ) -> None:
         super().__init__()
@@ -33,6 +34,7 @@ class ConditionalGARCHNet(nn.Module):
         self.constraint = constraint
         self.max_persistence = max_persistence
         self.s_max = s_max
+        self.v_max = v_max
         self.ablate_level_head = ablate_level_head
         self.register_buffer("_initial_variance", torch.tensor(float("nan")))
         self.register_buffer("_v0", torch.tensor(float("nan")))
@@ -75,7 +77,15 @@ class ConditionalGARCHNet(nn.Module):
         alpha = rho * self.s_max * torch.sigmoid(phi_raw)
         beta = rho - alpha
 
-        sigma_bar2 = torch.exp(self._v0 + v_raw)
+        # v_raw is unbounded by construction (unlike rho/alpha, which are
+        # squashed through sigmoid). A single extreme v_raw sends sigma_bar2
+        # through exp() to an absurd level and, via the recursion, corrupts
+        # the following day's variance too. tanh-saturate it so sigma_bar2 is
+        # confined to within a factor of exp(v_max) of the unconditional
+        # variance in either direction, while staying ~linear (full gradient)
+        # near zero, where the level head actually needs to operate.
+        v_bounded = self.v_max * torch.tanh(v_raw / self.v_max)
+        sigma_bar2 = torch.exp(self._v0 + v_bounded)
         omega = (1 - rho[:, 0]) * sigma_bar2
         
         return omega, alpha, beta, rho

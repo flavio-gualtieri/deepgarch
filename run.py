@@ -79,6 +79,7 @@ def run(config: RunConfig) -> None:
         return_windows=config.features.return_windows,
         exogenous_lag=config.features.exogenous_lag,
         include_seasonality=config.features.include_seasonality,
+        include_eia_calendar=config.features.include_eia_calendar,
     )
     # Fit normalization on train only, then compute rolling features over the
     # full chronological frame so validation/test starts can use prior history.
@@ -122,6 +123,7 @@ def run(config: RunConfig) -> None:
         constraint=config.model.constraint,
         max_persistence=config.model.max_persistence,
         s_max=config.model.s_max,
+        v_max=config.model.v_max,
         ablate_level_head=config.model.ablate_level_head,
     )
     model_config = {
@@ -134,6 +136,7 @@ def run(config: RunConfig) -> None:
         "constraint": config.model.constraint,
         "max_persistence": config.model.max_persistence,
         "s_max": config.model.s_max,
+        "v_max": config.model.v_max,
         "ablate_level_head": config.model.ablate_level_head,
     }
 

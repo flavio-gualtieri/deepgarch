@@ -33,6 +33,7 @@ class FeatureConfig:
     return_windows: list[int] = field(default_factory=lambda: [5, 10, 21, 63])
     exogenous_lag: int = 1
     include_seasonality: bool = True
+    include_eia_calendar: bool = True
 
 
 @dataclass
@@ -46,6 +47,7 @@ class ModelConfig:
     constraint: str = "stationary"
     max_persistence: float = 0.995
     s_max: float = 0.25
+    v_max: float = 3.0
     ablate_level_head: bool = False
 
 
