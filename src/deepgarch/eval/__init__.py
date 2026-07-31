@@ -1,4 +1,11 @@
-from .baselines import StaticGARCH
+from .static_garch import StaticGARCH
+from .gjr_garch import GJRGARCH
+from .egarch import EGARCH
+from .ewma import EWMA
+from .arch_fitted import ArchFittedBaseline
+from .baselines import ArchBaseline
+from .plots import plot_parameter_paths, plot_var_violations, plot_volatility_comparison
+from .tests import christoffersen, diebold_mariano, model_confidence_set
 from .metrics import (
     comparison_table,
     evaluate,
@@ -8,11 +15,14 @@ from .metrics import (
     qlike_series,
     var_backtest,
 )
-from .plots import plot_parameter_paths, plot_var_violations, plot_volatility_comparison
-from .tests import christoffersen, diebold_mariano, model_confidence_set
 
 __all__ = [
+    "ArchBaseline",
+    "ArchFittedBaseline",
     "StaticGARCH",
+    "GJRGARCH",
+    "EGARCH",
+    "EWMA",
     "qlike",
     "qlike_series",
     "mse_variance",

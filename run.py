@@ -1,41 +1,36 @@
-#!/usr/bin/env python
-"""Train, evaluate, and forecast a Conditional GARCHNet model from a YAML config.
-
-Usage:
-    python run.py --config configs/spy.yaml
-"""
-
 import warnings
 warnings.filterwarnings("ignore")
 
-import argparse
-import json
 import os
-
+import json
+import torch
+import argparse
 import matplotlib
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+
 import numpy as np
 import pandas as pd
-import torch
-from torch import Tensor
+import matplotlib.pyplot as plt
 
-from deepgarch.config import RunConfig
-from deepgarch.data import MarketData
 from deepgarch.eval import (
     StaticGARCH,
+    GJRGARCH,
+    EGARCH,
+    EWMA,
     comparison_table,
     evaluate,
     plot_parameter_paths,
     plot_var_violations,
     plot_volatility_comparison,
 )
+from deepgarch.data import MarketData
+from deepgarch.config import RunConfig
 from deepgarch.features import FeaturePipeline
-from deepgarch.models import ConditionalGARCHNet, ParamNet
 from deepgarch.train.tqdm_trainer import TqdmTrainer
+from deepgarch.models import ConditionalGARCHNet, ParamNet
 
 
-def to_return_tensor(frame: pd.DataFrame) -> Tensor:
+def to_return_tensor(frame: pd.DataFrame) -> torch.Tensor:
     return torch.tensor(frame["returns"].to_numpy(dtype=np.float32), dtype=torch.float32)
 
 
@@ -177,13 +172,16 @@ def run(config: RunConfig) -> None:
     parkinson_var_test = all_frame["parkinson_var"].to_numpy()[test_start_idx:]
     neural_metrics = evaluate(rets_test_np, neural_var, parkinson_var_test)
 
-    static_garch = StaticGARCH()
-    static_garch.fit(train_frame["returns"])
-    static_var_all = np.asarray(static_garch.filter(all_frame["returns"]))
-    static_var = static_var_all[test_start_idx:]
-    static_metrics = evaluate(rets_test_np, static_var, parkinson_var_test)
+    results = {f"{config.output.market} GARCHNet": neural_metrics}
+    static_var = None  # kept for the plotting section below, filled in on the StaticGARCH pass
+    for baseline in [StaticGARCH(), GJRGARCH(), EGARCH(), EWMA()]:
+        baseline.fit(train_frame["returns"])
+        baseline_var_all = np.asarray(baseline.filter(all_frame["returns"]))
+        baseline_var = baseline_var_all[test_start_idx:]
+        results[baseline.name] = evaluate(rets_test_np, baseline_var, parkinson_var_test)
+        if isinstance(baseline, StaticGARCH):
+            static_var = baseline_var
 
-    results = {f"{config.output.market} GARCHNet": neural_metrics, "Static GARCH": static_metrics}
     print(comparison_table(results))
     comparison_path = os.path.join(plots_dir, "comparison_metrics.json")
     # Per-observation *_series entries are ndarrays (for DM/MCS tests downstream,

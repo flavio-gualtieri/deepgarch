@@ -1,10 +1,10 @@
-# src/deepgarch/models/vol/garch.py
-
-from .garch_family import GARCHFamily
+from __future__ import annotations
 
 import torch
+
 import torch.nn.functional as F
-from torch import Tensor
+
+from .garch_family import GARCHFamily
 
 
 class GARCH(GARCHFamily):
@@ -13,9 +13,9 @@ class GARCH(GARCHFamily):
 
     def __init__(
         self,
-        omega: Tensor,
-        alpha: Tensor,
-        beta: Tensor,
+        omega: torch.Tensor,
+        alpha: torch.Tensor,
+        beta: torch.Tensor,
         constraint: str = "stationary",
         max_persistence: float = 1.0,
     ) -> None:
@@ -32,8 +32,7 @@ class GARCH(GARCHFamily):
         self.constraint = constraint
         self.max_persistence = max_persistence
 
-
-    def _constrained_params(self) -> tuple[Tensor, Tensor, Tensor]:
+    def _constrained_params(self) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         if self.constraint == "none":
             return self._omega_raw, self._alpha_raw, self._beta_raw
 
@@ -44,48 +43,38 @@ class GARCH(GARCHFamily):
                 F.softplus(self._beta_raw),
             )
 
-        # "stationary"
-        # Append a zero-logit slack to the α and β logits, then softmax.
-        # The slack class always receives positive probability, so the
-        # α and β weights sum to strictly less than 1 (scaled by
-        # max_persistence). No T dimension: one triple for the whole series.
-        omega  = F.softplus(self._omega_raw)
-        slack  = self._alpha_raw.new_zeros(1)
+        omega = F.softplus(self._omega_raw)
+        slack = self._alpha_raw.new_zeros(1)
         logits = torch.cat([self._alpha_raw, self._beta_raw, slack], dim=-1)
-        w      = torch.softmax(logits, dim=-1) * self.max_persistence
+        w = torch.softmax(logits, dim=-1) * self.max_persistence
 
-        q     = self._alpha_raw.shape[-1]
+        q = self._alpha_raw.shape[-1]
         alpha = w[:q]
-        beta  = w[q:-1]
+        beta = w[q:-1]
         return omega, alpha, beta
 
 
     @property
-    def omega(self) -> Tensor:
+    def omega(self) -> torch.Tensor:
         return self._constrained_params()[0]
 
-
     @property
-    def alpha(self) -> Tensor:
+    def alpha(self) -> torch.Tensor:
         return self._constrained_params()[1]
 
     @property
-    def beta(self) -> Tensor:
+    def beta(self) -> torch.Tensor:
         return self._constrained_params()[2]
 
+    @property
+    def persistence(self) -> torch.Tensor:
+        return self.alpha + self.beta
 
     def variance_equation(
-        self, t: int, past_return: Tensor, past_variance: Tensor
-    ) -> Tensor:
-
+        self, t: int, past_return: torch.Tensor, past_variance: torch.Tensor
+    ) -> torch.Tensor:
         omega, alpha, beta = self._constrained_params()
         arch_term  = (alpha * past_return ** 2).sum()
         garch_term = (beta  * past_variance).sum()
 
         return omega + arch_term + garch_term
-
-
-    def stationarity_gap(self) -> Tensor:
-
-        _, alpha, beta = self._constrained_params()
-        return alpha.sum() + beta.sum()

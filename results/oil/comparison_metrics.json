@@ -1,34 +1,34 @@
 {
   "oil GARCHNet": {
-    "qlike": -5.9785961285756635,
-    "mse_variance": 1.709794723739887e-05,
+    "qlike": -5.985561626117975,
+    "mse_variance": 1.638631074663267e-05,
     "var": {
       "alpha": 0.01,
       "n_obs": 194,
-      "n_violations": 7,
-      "violation_rate": 0.03608247422680412,
+      "n_violations": 5,
+      "violation_rate": 0.02577319587628866,
       "expected_rate": 0.01,
-      "kupiec_lr": 7.979607286861281,
-      "kupiec_pvalue": 0.004730720311416794
+      "kupiec_lr": 3.3965139128189605,
+      "kupiec_pvalue": 0.06533436160646881
     },
     "calibration": {
-      "mean_z2": 1.1530021146319303,
-      "empirical_quantile": -2.592866507973389,
-      "scale_corrected_quant": -2.414710697382125,
+      "mean_z2": 1.1061442175162834,
+      "empirical_quantile": -2.7727274958573793,
+      "scale_corrected_quant": -2.6363393529515884,
       "gaussian_quantile": -2.3263478740408408
     },
     "christoffersen": {
       "alpha": 0.01,
       "n_obs": 194,
-      "n_violations": 7,
-      "lr_uc": 7.979607286861281,
-      "lr_ind": 0.5270061656544129,
-      "lr_cc": 8.506613452515694,
-      "p_ind": 0.4678682562488206,
-      "p_cc": 0.014217143891990726
+      "n_violations": 5,
+      "lr_uc": 3.3965139128189605,
+      "lr_ind": 0.26598880912409584,
+      "lr_cc": 3.6625027219430564,
+      "p_ind": 0.6060352945048209,
+      "p_cc": 0.16021295804092925
     }
   },
-  "Static GARCH": {
+  "StaticGARCH": {
     "qlike": -6.03653416704768,
     "mse_variance": 1.6760346144006482e-05,
     "var": {
@@ -44,6 +44,93 @@
       "mean_z2": 1.143998155637292,
       "empirical_quantile": -2.6928666911858774,
       "scale_corrected_quant": -2.517689636935205,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 194,
+      "n_violations": 6,
+      "lr_uc": 5.515294450999882,
+      "lr_ind": 0.38509282828394475,
+      "lr_cc": 5.900387279283827,
+      "p_ind": 0.534890164661953,
+      "p_cc": 0.0523295718877243
+    }
+  },
+  "GJRGARCH": {
+    "qlike": -5.789740271725819,
+    "mse_variance": 1.81458479541636e-05,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 194,
+      "n_violations": 8,
+      "violation_rate": 0.041237113402061855,
+      "expected_rate": 0.01,
+      "kupiec_lr": 10.741309484928934,
+      "kupiec_pvalue": 0.0010477017076377438
+    },
+    "calibration": {
+      "mean_z2": 1.2723149575460309,
+      "empirical_quantile": -2.928050181051095,
+      "scale_corrected_quant": -2.595859597181106,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 194,
+      "n_violations": 8,
+      "lr_uc": 10.741309484928934,
+      "lr_ind": 0.6921076904609862,
+      "lr_cc": 11.43341717538992,
+      "p_ind": 0.4054484009943373,
+      "p_cc": 0.003290523567873219
+    }
+  },
+  "EGARCH": {
+    "qlike": -5.510702420640458,
+    "mse_variance": 1.8131298242450762e-05,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 194,
+      "n_violations": 8,
+      "violation_rate": 0.041237113402061855,
+      "expected_rate": 0.01,
+      "kupiec_lr": 10.741309484928934,
+      "kupiec_pvalue": 0.0010477017076377438
+    },
+    "calibration": {
+      "mean_z2": 1.5137024080326322,
+      "empirical_quantile": -3.193053031069046,
+      "scale_corrected_quant": -2.59528992365662,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 194,
+      "n_violations": 8,
+      "lr_uc": 10.741309484928934,
+      "lr_ind": 0.6921076904609862,
+      "lr_cc": 11.43341717538992,
+      "p_ind": 0.4054484009943373,
+      "p_cc": 0.003290523567873219
+    }
+  },
+  "EWMA": {
+    "qlike": -5.945648586070174,
+    "mse_variance": 1.7288627601073566e-05,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 194,
+      "n_violations": 6,
+      "violation_rate": 0.030927835051546393,
+      "expected_rate": 0.01,
+      "kupiec_lr": 5.515294450999882,
+      "kupiec_pvalue": 0.01885089970740148
+    },
+    "calibration": {
+      "mean_z2": 1.2227629028621776,
+      "empirical_quantile": -2.8418998468784666,
+      "scale_corrected_quant": -2.570026736939385,
       "gaussian_quantile": -2.3263478740408408
     },
     "christoffersen": {

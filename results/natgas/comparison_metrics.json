@@ -28,7 +28,7 @@
       "p_cc": 0.23882202617952022
     }
   },
-  "Static GARCH": {
+  "StaticGARCH": {
     "qlike": -5.4631851726185845,
     "mse_variance": 1.8941942582429528e-05,
     "var": {
@@ -55,6 +55,93 @@
       "lr_cc": 1.0214203244492808,
       "p_ind": 0.5179654576251926,
       "p_cc": 0.6000692809243744
+    }
+  },
+  "GJRGARCH": {
+    "qlike": -5.454666132638215,
+    "mse_variance": 2.190606927573942e-05,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 1401,
+      "n_violations": 19,
+      "violation_rate": 0.013561741613133477,
+      "expected_rate": 0.01,
+      "kupiec_lr": 1.6153437001849227,
+      "kupiec_pvalue": 0.20374226636820897
+    },
+    "calibration": {
+      "mean_z2": 1.1774383091844314,
+      "empirical_quantile": -2.4741509592029116,
+      "scale_corrected_quant": -2.280116899328617,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 1401,
+      "n_violations": 19,
+      "lr_uc": 1.6153437001849227,
+      "lr_ind": 0.5228260530128921,
+      "lr_cc": 2.1381697531978148,
+      "p_ind": 0.4696386515820441,
+      "p_cc": 0.343322556209978
+    }
+  },
+  "EGARCH": {
+    "qlike": -5.486599999513889,
+    "mse_variance": 1.3432955585343104e-05,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 1401,
+      "n_violations": 16,
+      "violation_rate": 0.011420413990007138,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.2730121225829407,
+      "kupiec_pvalue": 0.6013183347366832
+    },
+    "calibration": {
+      "mean_z2": 1.2528410521663038,
+      "empirical_quantile": -2.4603340180881603,
+      "scale_corrected_quant": -2.198093103606216,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 1401,
+      "n_violations": 16,
+      "lr_uc": 0.2730121225829407,
+      "lr_ind": 0.36995043741251266,
+      "lr_cc": 0.6429625599954534,
+      "p_ind": 0.5430312852317424,
+      "p_cc": 0.7250742032911291
+    }
+  },
+  "EWMA": {
+    "qlike": -5.436616687853015,
+    "mse_variance": 2.126094324125519e-05,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 1401,
+      "n_violations": 15,
+      "violation_rate": 0.010706638115631691,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.06907202890167241,
+      "kupiec_pvalue": 0.7926927267368389
+    },
+    "calibration": {
+      "mean_z2": 1.1168747301740798,
+      "empirical_quantile": -2.456286722080102,
+      "scale_corrected_quant": -2.3242178278712005,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 1401,
+      "n_violations": 15,
+      "lr_uc": 0.06907202890167241,
+      "lr_ind": 0.32491609935578936,
+      "lr_cc": 0.39398812825746177,
+      "p_ind": 0.5686681198586683,
+      "p_cc": 0.8211955078090118
     }
   }
 }
