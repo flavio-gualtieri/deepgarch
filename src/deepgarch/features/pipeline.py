@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Iterable, Sequence
 
 import numpy as np
 import pandas as pd
 import torch
 from torch import Tensor
+
+_EIA_CALENDAR_PATH = Path(__file__).parent.parent / "data" / "eia_wngsr_release_dates.csv"
 
 
 @dataclass(frozen=True)
@@ -25,6 +28,7 @@ class FeaturePipeline:
         "open", "high", "low", "close", "adj_close", "returns", "log_price",
         "parkinson_var", "volume", "log_volume", "volume_chg",
     }
+    _SKIP_STANDARDIZE = {"is_eia_day"}
 
     def __init__(
         self,
@@ -32,6 +36,7 @@ class FeaturePipeline:
         exogenous_columns: Iterable[str] | None = None,
         exogenous_lag: int = 1,
         include_seasonality: bool = True,
+        include_eia_calendar: bool = True,
     ) -> None:
         if not return_windows:
             raise ValueError("return_windows must contain at least one window.")
@@ -42,10 +47,16 @@ class FeaturePipeline:
         self.exogenous_columns = list(exogenous_columns) if exogenous_columns is not None else None
         self.exogenous_lag = int(exogenous_lag)
         self.include_seasonality = include_seasonality
+        self.include_eia_calendar = include_eia_calendar
 
         self._means: pd.Series | None = None
         self._stds: pd.Series | None = None
         self._feature_names: list[str] | None = None
+        self._eia_release_dates: set[pd.Timestamp] | None = None
+
+        if self.include_eia_calendar:
+            calendar = pd.read_csv(_EIA_CALENDAR_PATH, parse_dates=["release_date"])
+            self._eia_release_dates = set(calendar["release_date"].dropna())
 
     @property
     def feature_names(self) -> list[str]:
@@ -61,6 +72,9 @@ class FeaturePipeline:
         raw = self._compute_raw(frame)
         self._means = raw.mean()
         self._stds = raw.std().replace(0, 1)
+        for col in self._SKIP_STANDARDIZE:
+            self._means[col] = 0.0
+            self._stds[col] = 1.0
         self._feature_names = raw.columns.tolist()
         return self
 
@@ -95,6 +109,16 @@ class FeaturePipeline:
 
         ret = frame["returns"].astype(float)
         specs: list[FeatureSpec] = []
+
+        # EIA weekly storage report day. Unlike every other feature here, this
+        # is NOT shifted: the release calendar is public knowledge in advance,
+        # so it's known before day t rather than derived from day t's data.
+        if self.include_eia_calendar:
+            is_eia_day = pd.Series(
+                frame.index.isin(self._eia_release_dates).astype(float),
+                index=frame.index,
+            )
+            specs.append(FeatureSpec("is_eia_day", is_eia_day))
 
         # GARCH-friendly return state.
         specs.append(FeatureSpec("ret_lag1", ret.shift(1)))
