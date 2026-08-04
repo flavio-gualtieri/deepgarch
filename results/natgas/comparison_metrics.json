@@ -1,7 +1,7 @@
 {
   "nat_gas GARCHNet": {
-    "qlike": -5.331647808287427,
-    "mse_variance": 1.2497876733813459e-05,
+    "qlike": -5.332568145553393,
+    "mse_variance": 1.2451656132611723e-05,
     "var": {
       "alpha": 0.01,
       "n_obs": 1402,
@@ -12,9 +12,9 @@
       "kupiec_pvalue": 0.0019986527008694697
     },
     "calibration": {
-      "mean_z2": 2.647056626985533,
-      "empirical_quantile": -2.670401634943114,
-      "scale_corrected_quant": -1.641326453803349,
+      "mean_z2": 2.6409749496640855,
+      "empirical_quantile": -2.6943855436417117,
+      "scale_corrected_quant": -1.6579735533764282,
       "gaussian_quantile": -2.3263478740408408
     },
     "christoffersen": {

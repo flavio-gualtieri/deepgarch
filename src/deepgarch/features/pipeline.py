@@ -73,8 +73,9 @@ class FeaturePipeline:
         self._means = raw.mean()
         self._stds = raw.std().replace(0, 1)
         for col in self._SKIP_STANDARDIZE:
-            self._means[col] = 0.0
-            self._stds[col] = 1.0
+            if col in raw.columns:
+                self._means[col] = 0.0
+                self._stds[col] = 1.0
         self._feature_names = raw.columns.tolist()
         return self
 
@@ -111,13 +112,18 @@ class FeaturePipeline:
         specs: list[FeatureSpec] = []
 
         # EIA weekly storage report day. Unlike every other feature here, this
-        # is NOT shifted: the release calendar is public knowledge in advance,
-        # so it's known before day t rather than derived from day t's data.
+        # isn't lagged with .shift(1) -- the release calendar is public
+        # knowledge in advance. But it does need shift(-1): the variance
+        # recursion uses row t-1's parameters to forecast sigma2 for day t
+        # (see variance_path), so to make the model raise its forecast FOR
+        # the release day, the flag must be 1 on the row BEFORE the release,
+        # not on the release day's own row.
         if self.include_eia_calendar:
-            is_eia_day = pd.Series(
+            same_day = pd.Series(
                 frame.index.isin(self._eia_release_dates).astype(float),
                 index=frame.index,
             )
+            is_eia_day = same_day.shift(-1)
             specs.append(FeatureSpec("is_eia_day", is_eia_day))
 
         # GARCH-friendly return state.
