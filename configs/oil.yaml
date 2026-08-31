@@ -33,6 +33,7 @@ model:
   constraint: stationary
   max_persistence: 0.995
   s_max: 0.25
+  v_max: 1.0
 
 train:
   max_epochs: 1000

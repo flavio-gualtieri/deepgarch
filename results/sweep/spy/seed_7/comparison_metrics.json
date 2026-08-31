@@ -1,31 +1,31 @@
 {
   "spy GARCHNet": {
-    "qlike": -9.039759449619678,
-    "mse_variance": 3.883090385292392e-09,
+    "qlike": -9.079196562635934,
+    "mse_variance": 3.256489477305624e-09,
     "var": {
       "alpha": 0.01,
       "n_obs": 313,
-      "n_violations": 4,
-      "violation_rate": 0.012779552715654952,
+      "n_violations": 3,
+      "violation_rate": 0.009584664536741214,
       "expected_rate": 0.01,
-      "kupiec_lr": 0.2245357789985647,
-      "kupiec_pvalue": 0.635605404202668
+      "kupiec_lr": 0.005530236071180639,
+      "kupiec_pvalue": 0.9407195144054952
     },
     "calibration": {
-      "mean_z2": 0.8616524418669459,
-      "empirical_quantile": -2.437856302619703,
-      "scale_corrected_quant": -2.6262861377683366,
+      "mean_z2": 0.9034594805041269,
+      "empirical_quantile": -2.211116425018458,
+      "scale_corrected_quant": -2.326254739268135,
       "gaussian_quantile": -2.3263478740408408
     },
     "christoffersen": {
       "alpha": 0.01,
       "n_obs": 313,
-      "n_violations": 4,
-      "lr_uc": 0.2245357789985647,
-      "lr_ind": 0.10389902465600187,
-      "lr_cc": 0.32843480365456657,
-      "p_ind": 0.7471998931410309,
-      "p_cc": 0.8485575238695868
+      "n_violations": 3,
+      "lr_uc": 0.005530236071180639,
+      "lr_ind": 0.058253342360607974,
+      "lr_cc": 0.06378357843178861,
+      "p_ind": 0.809278210493037,
+      "p_cc": 0.9686113906064601
     }
   },
   "StaticGARCH": {

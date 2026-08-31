@@ -2,9 +2,9 @@
   "benchmark": "StaticGARCH",
   "dm_qlike_vs_benchmark": {
     "spy GARCHNet": {
-      "dm_stat": -3.579368858271044,
-      "p_value": 0.0003444250367130373,
-      "mean_loss_diff": -0.07087797164009407,
+      "dm_stat": -3.9157163346262465,
+      "p_value": 9.013617841615588e-05,
+      "mean_loss_diff": -0.11031508465635007,
       "bandwidth": 5,
       "h": 1,
       "n_obs": 313
@@ -47,11 +47,11 @@
         "StaticGARCH"
       ],
       "pvalues": {
-        "StaticGARCH": 0.042,
-        "EWMA": 0.156,
-        "GJRGARCH": 0.156,
-        "spy GARCHNet": 0.1876,
-        "EGARCH": 1.0
+        "StaticGARCH": 0.0408,
+        "EWMA": 0.1418,
+        "GJRGARCH": 0.1418,
+        "EGARCH": 0.6876,
+        "spy GARCHNet": 1.0
       }
     },
     "mse_var": {
@@ -66,11 +66,11 @@
         "StaticGARCH"
       ],
       "pvalues": {
-        "StaticGARCH": 0.0576,
-        "EWMA": 0.253,
-        "spy GARCHNet": 0.565,
-        "GJRGARCH": 0.565,
-        "EGARCH": 1.0
+        "StaticGARCH": 0.0522,
+        "EWMA": 0.2464,
+        "GJRGARCH": 0.4276,
+        "EGARCH": 0.4276,
+        "spy GARCHNet": 1.0
       }
     }
   }

@@ -2,9 +2,9 @@
   "benchmark": "StaticGARCH",
   "dm_qlike_vs_benchmark": {
     "oil GARCHNet": {
-      "dm_stat": 0.8103361729173653,
-      "p_value": 0.41774699076925104,
-      "mean_loss_diff": 0.02792007461659037,
+      "dm_stat": 0.8098299789189825,
+      "p_value": 0.41803790001276375,
+      "mean_loss_diff": 0.02786984084205592,
       "bandwidth": 4,
       "h": 1,
       "n_obs": 229
@@ -49,8 +49,8 @@
       "pvalues": {
         "EWMA": 0.0794,
         "GJRGARCH": 0.089,
-        "EGARCH": 0.1738,
-        "oil GARCHNet": 0.5402,
+        "EGARCH": 0.174,
+        "oil GARCHNet": 0.54,
         "StaticGARCH": 1.0
       }
     },
@@ -65,10 +65,10 @@
       ],
       "excluded": [],
       "pvalues": {
-        "EWMA": 0.1526,
-        "GJRGARCH": 0.1526,
+        "EWMA": 0.1528,
+        "GJRGARCH": 0.1528,
         "EGARCH": 0.2794,
-        "oil GARCHNet": 0.5984,
+        "oil GARCHNet": 0.598,
         "StaticGARCH": 1.0
       }
     }

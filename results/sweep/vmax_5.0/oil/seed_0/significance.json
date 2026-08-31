@@ -1,0 +1,76 @@
+{
+  "benchmark": "StaticGARCH",
+  "dm_qlike_vs_benchmark": {
+    "oil GARCHNet": {
+      "dm_stat": 0.8408960348954556,
+      "p_value": 0.40040617993509064,
+      "mean_loss_diff": 0.029740435563516757,
+      "bandwidth": 4,
+      "h": 1,
+      "n_obs": 229
+    },
+    "GJRGARCH": {
+      "dm_stat": 1.3572953388904243,
+      "p_value": 0.17468738777855125,
+      "mean_loss_diff": 0.2092206890638996,
+      "bandwidth": 4,
+      "h": 1,
+      "n_obs": 229
+    },
+    "EGARCH": {
+      "dm_stat": 1.2462078539119612,
+      "p_value": 0.21268809642711733,
+      "mean_loss_diff": 0.44236422625577715,
+      "bandwidth": 4,
+      "h": 1,
+      "n_obs": 229
+    },
+    "EWMA": {
+      "dm_stat": 1.2474734969608139,
+      "p_value": 0.21222393218465113,
+      "mean_loss_diff": 0.07910887017504065,
+      "bandwidth": 4,
+      "h": 1,
+      "n_obs": 229
+    }
+  },
+  "mcs": {
+    "qlike": {
+      "alpha": 0.1,
+      "included": [
+        "EGARCH",
+        "StaticGARCH",
+        "oil GARCHNet"
+      ],
+      "excluded": [
+        "EWMA",
+        "GJRGARCH"
+      ],
+      "pvalues": {
+        "EWMA": 0.0796,
+        "GJRGARCH": 0.0904,
+        "EGARCH": 0.1792,
+        "oil GARCHNet": 0.5176,
+        "StaticGARCH": 1.0
+      }
+    },
+    "mse_var": {
+      "alpha": 0.1,
+      "included": [
+        "EGARCH",
+        "EWMA",
+        "GJRGARCH",
+        "StaticGARCH",
+        "oil GARCHNet"
+      ],
+      "excluded": [],
+      "pvalues": {
+        "EWMA": 0.1652,
+        "GJRGARCH": 0.1652,
+        "EGARCH": 0.2944,
+        "oil GARCHNet": 0.5702,
+        "StaticGARCH": 1.0
+      }
+    }
+  }
+}

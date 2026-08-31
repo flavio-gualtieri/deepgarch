@@ -18,6 +18,7 @@ model:
   q: 1
   constraint: stationary
   max_persistence: 0.999
+  v_max: 1.0
 
 train:
   max_epochs: 500

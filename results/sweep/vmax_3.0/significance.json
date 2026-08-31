@@ -1,0 +1,286 @@
+{
+  "oil": {
+    "benchmark": "StaticGARCH",
+    "n_seeds": 3,
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "qlike": {
+      "dm_vs_benchmark": {
+        "oil GARCHNet": {
+          "ensemble": {
+            "dm_stat": 0.866949940948447,
+            "p_value": 0.3859694383752504,
+            "mean_loss_diff": 0.03217941863768284,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.38645345736760617,
+            "median_p": 0.38386124633962737,
+            "min_p": 0.375084324466044,
+            "max_p": 0.40041480129714707,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 0.8662248175412769,
+            "mean_loss_diff": 0.03217941863768287,
+            "p_values": [
+              0.40041480129714707,
+              0.38386124633962737,
+              0.375084324466044
+            ]
+          }
+        },
+        "GJRGARCH": {
+          "ensemble": {
+            "dm_stat": 1.3572953388904245,
+            "p_value": 0.17468738777855114,
+            "mean_loss_diff": 0.20922068906389962,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.17468738777855122,
+            "median_p": 0.17468738777855125,
+            "min_p": 0.17468738777855125,
+            "max_p": 0.17468738777855125,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 1.3572953388904245,
+            "mean_loss_diff": 0.2092206890638996,
+            "p_values": [
+              0.17468738777855125,
+              0.17468738777855125,
+              0.17468738777855125
+            ]
+          }
+        },
+        "EGARCH": {
+          "ensemble": {
+            "dm_stat": 1.2462078539119612,
+            "p_value": 0.21268809642711733,
+            "mean_loss_diff": 0.44236422625577715,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.2126880964271173,
+            "median_p": 0.21268809642711733,
+            "min_p": 0.21268809642711733,
+            "max_p": 0.21268809642711733,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 1.2462078539119612,
+            "mean_loss_diff": 0.44236422625577715,
+            "p_values": [
+              0.21268809642711733,
+              0.21268809642711733,
+              0.21268809642711733
+            ]
+          }
+        },
+        "EWMA": {
+          "ensemble": {
+            "dm_stat": 1.2474734969608137,
+            "p_value": 0.21222393218465116,
+            "mean_loss_diff": 0.07910887017504066,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.21222393218465122,
+            "median_p": 0.21222393218465122,
+            "min_p": 0.21222393218465122,
+            "max_p": 0.21222393218465122,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 1.2474734969608134,
+            "mean_loss_diff": 0.07910887017504062,
+            "p_values": [
+              0.21222393218465122,
+              0.21222393218465122,
+              0.21222393218465122
+            ]
+          }
+        }
+      },
+      "mcs": {
+        "ensemble": {
+          "alpha": 0.1,
+          "included": [
+            "EGARCH",
+            "StaticGARCH",
+            "oil GARCHNet"
+          ],
+          "excluded": [
+            "EWMA",
+            "GJRGARCH"
+          ],
+          "pvalues": {
+            "EWMA": 0.0796,
+            "GJRGARCH": 0.0898,
+            "EGARCH": 0.1792,
+            "oil GARCHNet": 0.504,
+            "StaticGARCH": 1.0
+          }
+        },
+        "per_seed": {
+          "n_seeds_ok": 3,
+          "in_mcs_count": {
+            "oil GARCHNet": 3,
+            "StaticGARCH": 3,
+            "GJRGARCH": 0,
+            "EGARCH": 3,
+            "EWMA": 0
+          },
+          "mean_pvalue": {
+            "oil GARCHNet": 0.5019333333333333,
+            "StaticGARCH": 1.0,
+            "GJRGARCH": 0.0902,
+            "EGARCH": 0.17973333333333333,
+            "EWMA": 0.07973333333333334
+          }
+        }
+      }
+    },
+    "mse_var": {
+      "dm_vs_benchmark": {
+        "oil GARCHNet": {
+          "ensemble": {
+            "dm_stat": 0.5690347001182139,
+            "p_value": 0.5693325914613486,
+            "mean_loss_diff": 1.8866752399101788e-07,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.5697094576921014,
+            "median_p": 0.5781818352077615,
+            "min_p": 0.5519175508376364,
+            "max_p": 0.5790289870309062,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 0.5685784184472444,
+            "mean_loss_diff": 1.8866752399102103e-07,
+            "p_values": [
+              0.5781818352077615,
+              0.5790289870309062,
+              0.5519175508376364
+            ]
+          }
+        },
+        "GJRGARCH": {
+          "ensemble": {
+            "dm_stat": 1.470203668723921,
+            "p_value": 0.1415066013927215,
+            "mean_loss_diff": 1.1711741918718449e-06,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.1415066013927219,
+            "median_p": 0.1415066013927219,
+            "min_p": 0.1415066013927219,
+            "max_p": 0.1415066013927219,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 1.4702036687239197,
+            "mean_loss_diff": 1.1711741918718468e-06,
+            "p_values": [
+              0.1415066013927219,
+              0.1415066013927219,
+              0.1415066013927219
+            ]
+          }
+        },
+        "EGARCH": {
+          "ensemble": {
+            "dm_stat": 1.0580717097857648,
+            "p_value": 0.2900227508762134,
+            "mean_loss_diff": 1.1513955086176455e-06,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.2900227508762134,
+            "median_p": 0.2900227508762134,
+            "min_p": 0.2900227508762134,
+            "max_p": 0.2900227508762134,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 1.0580717097857648,
+            "mean_loss_diff": 1.1513955086176474e-06,
+            "p_values": [
+              0.2900227508762134,
+              0.2900227508762134,
+              0.2900227508762134
+            ]
+          }
+        },
+        "EWMA": {
+          "ensemble": {
+            "dm_stat": 0.9212587475927319,
+            "p_value": 0.3569153531242853,
+            "mean_loss_diff": 4.5092793106090166e-07,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.35691535312428496,
+            "median_p": 0.3569153531242849,
+            "min_p": 0.3569153531242849,
+            "max_p": 0.3569153531242849,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 0.9212587475927325,
+            "mean_loss_diff": 4.509279310609036e-07,
+            "p_values": [
+              0.3569153531242849,
+              0.3569153531242849,
+              0.3569153531242849
+            ]
+          }
+        }
+      },
+      "mcs": {
+        "ensemble": {
+          "alpha": 0.1,
+          "included": [
+            "EGARCH",
+            "EWMA",
+            "GJRGARCH",
+            "StaticGARCH",
+            "oil GARCHNet"
+          ],
+          "excluded": [],
+          "pvalues": {
+            "EWMA": 0.1474,
+            "GJRGARCH": 0.1474,
+            "EGARCH": 0.295,
+            "oil GARCHNet": 0.5638,
+            "StaticGARCH": 1.0
+          }
+        },
+        "per_seed": {
+          "n_seeds_ok": 3,
+          "in_mcs_count": {
+            "oil GARCHNet": 3,
+            "StaticGARCH": 3,
+            "GJRGARCH": 3,
+            "EGARCH": 3,
+            "EWMA": 3
+          },
+          "mean_pvalue": {
+            "oil GARCHNet": 0.5623333333333334,
+            "StaticGARCH": 1.0,
+            "GJRGARCH": 0.15313333333333334,
+            "EGARCH": 0.2959333333333333,
+            "EWMA": 0.14893333333333336
+          }
+        }
+      }
+    }
+  }
+}

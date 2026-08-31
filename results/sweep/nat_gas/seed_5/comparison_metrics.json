@@ -1,31 +1,31 @@
 {
   "nat_gas GARCHNet": {
-    "qlike": -5.368990711526827,
-    "mse_variance": 1.1723476388504899e-05,
+    "qlike": -5.510292997166974,
+    "mse_variance": 1.1594713776210559e-05,
     "var": {
       "alpha": 0.01,
       "n_obs": 1423,
-      "n_violations": 24,
-      "violation_rate": 0.016865776528460996,
+      "n_violations": 25,
+      "violation_rate": 0.017568517217146872,
       "expected_rate": 0.01,
-      "kupiec_lr": 5.617581452523325,
-      "kupiec_pvalue": 0.0177811698841787
+      "kupiec_lr": 6.718717556825254,
+      "kupiec_pvalue": 0.009540620649785576
     },
     "calibration": {
-      "mean_z2": 2.666816629076383,
-      "empirical_quantile": -2.717989496356494,
-      "scale_corrected_quant": -1.66437504991987,
+      "mean_z2": 1.5518809157295863,
+      "empirical_quantile": -2.7669474934189724,
+      "scale_corrected_quant": -2.221118460384303,
       "gaussian_quantile": -2.3263478740408408
     },
     "christoffersen": {
       "alpha": 0.01,
       "n_obs": 1423,
-      "n_violations": 24,
-      "lr_uc": 5.617581452523325,
-      "lr_ind": 0.8240748159660995,
-      "lr_cc": 6.4416562684894245,
-      "p_ind": 0.3639914728172391,
-      "p_cc": 0.03992198380559344
+      "n_violations": 25,
+      "lr_uc": 6.718717556825254,
+      "lr_ind": 0.8948222813179711,
+      "lr_cc": 7.613539838143225,
+      "p_ind": 0.3441738523211371,
+      "p_cc": 0.022219835032645064
     }
   },
   "StaticGARCH": {

@@ -1,7 +1,7 @@
 {
   "spy GARCHNet": {
-    "qlike": -9.054316943009635,
-    "mse_variance": 3.5862419348612357e-09,
+    "qlike": -9.055434119247854,
+    "mse_variance": 3.568355960718061e-09,
     "var": {
       "alpha": 0.01,
       "n_obs": 313,
@@ -12,9 +12,9 @@
       "kupiec_pvalue": 0.635605404202668
     },
     "calibration": {
-      "mean_z2": 0.9106230886657016,
-      "empirical_quantile": -2.654156446889883,
-      "scale_corrected_quant": -2.7813599041143715,
+      "mean_z2": 0.91976591774757,
+      "empirical_quantile": -2.697477163420495,
+      "scale_corrected_quant": -2.8126721978414,
       "gaussian_quantile": -2.3263478740408408
     },
     "christoffersen": {

@@ -1,0 +1,147 @@
+{
+  "nat_gas GARCHNet": {
+    "qlike": -5.458137918567907,
+    "mse_variance": 1.2099291926748814e-05,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 1423,
+      "n_violations": 21,
+      "violation_rate": 0.014757554462403373,
+      "expected_rate": 0.01,
+      "kupiec_lr": 2.8377273004591643,
+      "kupiec_pvalue": 0.09207435917528507
+    },
+    "calibration": {
+      "mean_z2": 1.899926724545318,
+      "empirical_quantile": -2.7401334690565333,
+      "scale_corrected_quant": -1.9879400877789901,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 1423,
+      "n_violations": 21,
+      "lr_uc": 2.8377273004591643,
+      "lr_ind": 0.6295738977653969,
+      "lr_cc": 3.467301198224561,
+      "p_ind": 0.4275116540608948,
+      "p_cc": 0.1766383955475049
+    }
+  },
+  "StaticGARCH": {
+    "qlike": -5.481191197960323,
+    "mse_variance": 1.865013600107821e-05,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 1423,
+      "n_violations": 17,
+      "violation_rate": 0.011946591707659873,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.5127217839885816,
+      "kupiec_pvalue": 0.4739629844661798
+    },
+    "calibration": {
+      "mean_z2": 1.169458646598575,
+      "empirical_quantile": -2.447330430194023,
+      "scale_corrected_quant": -2.2630814021381873,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 1423,
+      "n_violations": 17,
+      "lr_uc": 0.5127217839885816,
+      "lr_ind": 0.4113979389036331,
+      "lr_cc": 0.9241197228922147,
+      "p_ind": 0.5212608182816183,
+      "p_cc": 0.6299846270223497
+    }
+  },
+  "GJRGARCH": {
+    "qlike": -5.472678785443301,
+    "mse_variance": 2.1568532998412917e-05,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 1423,
+      "n_violations": 19,
+      "violation_rate": 0.013352073085031623,
+      "expected_rate": 0.01,
+      "kupiec_lr": 1.4614587055885124,
+      "kupiec_pvalue": 0.22669816800211937
+    },
+    "calibration": {
+      "mean_z2": 1.1694241001828416,
+      "empirical_quantile": -2.463103170784396,
+      "scale_corrected_quant": -2.2777003231056705,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 1423,
+      "n_violations": 19,
+      "lr_uc": 1.4614587055885124,
+      "lr_ind": 0.5146272775287173,
+      "lr_cc": 1.9760859831172297,
+      "p_ind": 0.47314257475924937,
+      "p_cc": 0.37230458175484077
+    }
+  },
+  "EGARCH": {
+    "qlike": -5.5038550586699415,
+    "mse_variance": 1.3226654509681579e-05,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 1423,
+      "n_violations": 16,
+      "violation_rate": 0.011243851018973999,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.21378671121604498,
+      "kupiec_pvalue": 0.6438154707300348
+    },
+    "calibration": {
+      "mean_z2": 1.24321697431604,
+      "empirical_quantile": -2.4389806081083907,
+      "scale_corrected_quant": -2.1874336148971105,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 1423,
+      "n_violations": 16,
+      "lr_uc": 0.21378671121604498,
+      "lr_ind": 0.3641614873596666,
+      "lr_cc": 0.5779481985757116,
+      "p_ind": 0.5462040866483266,
+      "p_cc": 0.7490316056034324
+    }
+  },
+  "EWMA": {
+    "qlike": -5.4554302360763,
+    "mse_variance": 2.0932994167094923e-05,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 1423,
+      "n_violations": 15,
+      "violation_rate": 0.010541110330288124,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.04135461030256238,
+      "kupiec_pvalue": 0.8388549672532466
+    },
+    "calibration": {
+      "mean_z2": 1.1116689927227812,
+      "empirical_quantile": -2.425952250706278,
+      "scale_corrected_quant": -2.300882825502319,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 1423,
+      "n_violations": 15,
+      "lr_uc": 0.04135461030256238,
+      "lr_ind": 0.3198354830317953,
+      "lr_cc": 0.3611900933343577,
+      "p_ind": 0.5717065303933349,
+      "p_cc": 0.8347733345029134
+    }
+  }
+}

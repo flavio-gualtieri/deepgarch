@@ -1,9 +1,9 @@
 ,0
-pre_split_ann_vol,0.3033168085925891
-post_split_ann_vol_mean,0.6544350627066634
-post_split_ann_vol_peak,1.0967600703960425
-pre_split_persistence_mean,0.9881680607795715
-post_split_persistence_mean,0.9873660802841187
-current_persistence,0.9881178140640259
-current_ann_vol,0.4196702159765194
-forecast_horizon_ann_vol,0.40168214376182515
+pre_split_ann_vol,0.3033859990582617
+post_split_ann_vol_mean,0.6546090442023974
+post_split_ann_vol_peak,1.0969985113854372
+pre_split_persistence_mean,0.9881685972213745
+post_split_persistence_mean,0.9873672127723694
+current_persistence,0.9881182909011841
+current_ann_vol,0.41976439188812925
+forecast_horizon_ann_vol,0.401827591582613

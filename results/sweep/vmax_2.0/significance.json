@@ -1,0 +1,277 @@
+{
+  "oil": {
+    "benchmark": "StaticGARCH",
+    "n_seeds": 2,
+    "seeds": [
+      1,
+      2
+    ],
+    "qlike": {
+      "dm_vs_benchmark": {
+        "oil GARCHNet": {
+          "ensemble": {
+            "dm_stat": 1.7729439737916364,
+            "p_value": 0.07623799106525692,
+            "mean_loss_diff": 0.02184188657927701,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.6113713294540093,
+            "median_p": 0.6113713294540093,
+            "min_p": 0.37510584743038183,
+            "max_p": 0.8476368114776368,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 0.5395422503479306,
+            "mean_loss_diff": 0.021841886579277027,
+            "p_values": [
+              0.8476368114776368,
+              0.37510584743038183
+            ]
+          }
+        },
+        "GJRGARCH": {
+          "ensemble": {
+            "dm_stat": 1.3572953388904243,
+            "p_value": 0.17468738777855125,
+            "mean_loss_diff": 0.2092206890638996,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.17468738777855125,
+            "median_p": 0.17468738777855125,
+            "min_p": 0.17468738777855125,
+            "max_p": 0.17468738777855125,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 1.3572953388904243,
+            "mean_loss_diff": 0.2092206890638996,
+            "p_values": [
+              0.17468738777855125,
+              0.17468738777855125
+            ]
+          }
+        },
+        "EGARCH": {
+          "ensemble": {
+            "dm_stat": 1.2462078539119612,
+            "p_value": 0.21268809642711733,
+            "mean_loss_diff": 0.44236422625577715,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.21268809642711733,
+            "median_p": 0.21268809642711733,
+            "min_p": 0.21268809642711733,
+            "max_p": 0.21268809642711733,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 1.2462078539119612,
+            "mean_loss_diff": 0.44236422625577715,
+            "p_values": [
+              0.21268809642711733,
+              0.21268809642711733
+            ]
+          }
+        },
+        "EWMA": {
+          "ensemble": {
+            "dm_stat": 1.2474734969608134,
+            "p_value": 0.21222393218465122,
+            "mean_loss_diff": 0.07910887017504062,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.21222393218465122,
+            "median_p": 0.21222393218465122,
+            "min_p": 0.21222393218465122,
+            "max_p": 0.21222393218465122,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 1.2474734969608134,
+            "mean_loss_diff": 0.07910887017504062,
+            "p_values": [
+              0.21222393218465122,
+              0.21222393218465122
+            ]
+          }
+        }
+      },
+      "mcs": {
+        "ensemble": {
+          "alpha": 0.1,
+          "included": [
+            "EGARCH",
+            "EWMA",
+            "GJRGARCH",
+            "StaticGARCH"
+          ],
+          "excluded": [
+            "oil GARCHNet"
+          ],
+          "pvalues": {
+            "oil GARCHNet": 0.0892,
+            "GJRGARCH": 0.2008,
+            "EWMA": 0.2008,
+            "EGARCH": 0.2008,
+            "StaticGARCH": 1.0
+          }
+        },
+        "per_seed": {
+          "n_seeds_ok": 2,
+          "in_mcs_count": {
+            "oil GARCHNet": 2,
+            "StaticGARCH": 2,
+            "GJRGARCH": 1,
+            "EGARCH": 2,
+            "EWMA": 1
+          },
+          "mean_pvalue": {
+            "oil GARCHNet": 0.6402,
+            "StaticGARCH": 1.0,
+            "GJRGARCH": 0.19669999999999999,
+            "EGARCH": 0.242,
+            "EWMA": 0.1914
+          }
+        }
+      }
+    },
+    "mse_var": {
+      "dm_vs_benchmark": {
+        "oil GARCHNet": {
+          "ensemble": {
+            "dm_stat": -0.7435487667751487,
+            "p_value": 0.4571495081442876,
+            "mean_loss_diff": -2.1466089471688854e-07,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.5193181930409395,
+            "median_p": 0.5193181930409395,
+            "min_p": 0.4867117257457643,
+            "max_p": 0.5519246603361148,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": -0.050334899825604795,
+            "mean_loss_diff": -2.1466089471688846e-07,
+            "p_values": [
+              0.4867117257457643,
+              0.5519246603361148
+            ]
+          }
+        },
+        "GJRGARCH": {
+          "ensemble": {
+            "dm_stat": 1.4702036687239197,
+            "p_value": 0.1415066013927219,
+            "mean_loss_diff": 1.1711741918718468e-06,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.1415066013927219,
+            "median_p": 0.1415066013927219,
+            "min_p": 0.1415066013927219,
+            "max_p": 0.1415066013927219,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 1.4702036687239197,
+            "mean_loss_diff": 1.1711741918718468e-06,
+            "p_values": [
+              0.1415066013927219,
+              0.1415066013927219
+            ]
+          }
+        },
+        "EGARCH": {
+          "ensemble": {
+            "dm_stat": 1.0580717097857648,
+            "p_value": 0.2900227508762134,
+            "mean_loss_diff": 1.1513955086176474e-06,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.2900227508762134,
+            "median_p": 0.2900227508762134,
+            "min_p": 0.2900227508762134,
+            "max_p": 0.2900227508762134,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 1.0580717097857648,
+            "mean_loss_diff": 1.1513955086176474e-06,
+            "p_values": [
+              0.2900227508762134,
+              0.2900227508762134
+            ]
+          }
+        },
+        "EWMA": {
+          "ensemble": {
+            "dm_stat": 0.9212587475927325,
+            "p_value": 0.3569153531242849,
+            "mean_loss_diff": 4.509279310609036e-07,
+            "bandwidth": 4,
+            "h": 1,
+            "n_obs": 229
+          },
+          "per_seed": {
+            "mean_p": 0.3569153531242849,
+            "median_p": 0.3569153531242849,
+            "min_p": 0.3569153531242849,
+            "max_p": 0.3569153531242849,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 0.9212587475927325,
+            "mean_loss_diff": 4.509279310609036e-07,
+            "p_values": [
+              0.3569153531242849,
+              0.3569153531242849
+            ]
+          }
+        }
+      },
+      "mcs": {
+        "ensemble": {
+          "alpha": 0.1,
+          "included": [
+            "EGARCH",
+            "EWMA",
+            "GJRGARCH",
+            "StaticGARCH",
+            "oil GARCHNet"
+          ],
+          "excluded": [],
+          "pvalues": {
+            "GJRGARCH": 0.2604,
+            "EGARCH": 0.558,
+            "EWMA": 0.558,
+            "StaticGARCH": 0.558,
+            "oil GARCHNet": 1.0
+          }
+        },
+        "per_seed": {
+          "n_seeds_ok": 2,
+          "in_mcs_count": {
+            "oil GARCHNet": 2,
+            "StaticGARCH": 2,
+            "GJRGARCH": 2,
+            "EGARCH": 2,
+            "EWMA": 2
+          },
+          "mean_pvalue": {
+            "oil GARCHNet": 0.7753,
+            "StaticGARCH": 0.7894,
+            "GJRGARCH": 0.2022,
+            "EGARCH": 0.42010000000000003,
+            "EWMA": 0.34040000000000004
+          }
+        }
+      }
+    }
+  }
+}

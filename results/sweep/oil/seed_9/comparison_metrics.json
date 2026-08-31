@@ -1,7 +1,7 @@
 {
   "oil GARCHNet": {
-    "qlike": -6.005938748647603,
-    "mse_variance": 1.4450031874264142e-05,
+    "qlike": -6.005988982422138,
+    "mse_variance": 1.4449934776010114e-05,
     "var": {
       "alpha": 0.01,
       "n_obs": 229,
@@ -12,9 +12,9 @@
       "kupiec_pvalue": 0.003114287389015501
     },
     "calibration": {
-      "mean_z2": 1.1510494363607502,
-      "empirical_quantile": -2.563617592037408,
-      "scale_corrected_quant": -2.389495708518184,
+      "mean_z2": 1.1506470170188334,
+      "empirical_quantile": -2.563270755644452,
+      "scale_corrected_quant": -2.3895901791966208,
       "gaussian_quantile": -2.3263478740408408
     },
     "christoffersen": {

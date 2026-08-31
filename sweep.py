@@ -180,6 +180,7 @@ def main() -> None:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("--seeds", type=int, nargs="+", default=list(range(10)))
+    parser.add_argument("--v-max", type=float, nargs="+", default=[None])
     parser.add_argument("--configs", nargs="+", default=MAIN_CONFIGS)
     parser.add_argument("--out", default="results/sweep")
     parser.add_argument(
@@ -190,22 +191,30 @@ def main() -> None:
     args = parser.parse_args()
     out_root = Path(args.out)
 
+    def vroot_for(v):
+        return out_root if v is None else out_root / f"vmax_{v}"
+
     failures = []
     if not args.aggregate_only:
         for cfg_path in args.configs:
-            for seed in args.seeds:
-                config = RunConfig.from_yaml(cfg_path)
-                config.seed = seed
-                config.output.dir = str(out_root / config.output.market / f"seed_{seed}")
-                banner = f"{cfg_path}  seed={seed}  ->  {config.output.dir}"
-                print(f"\n{'=' * len(banner)}\n{banner}\n{'=' * len(banner)}", flush=True)
-                try:
-                    run(config)
-                except Exception:
-                    failures.append((cfg_path, seed))
-                    print(f"!! FAILED {cfg_path} seed={seed}\n{traceback.format_exc()}", flush=True)
+            for v in args.v_max:
+                vroot = vroot_for(v)
+                for seed in args.seeds:
+                    config = RunConfig.from_yaml(cfg_path)
+                    config.seed = seed
+                    if v is not None:
+                        config.model.v_max = v
+                    config.output.dir = str(vroot / config.output.market / f"seed_{seed}")
+                    banner = f"{cfg_path}  seed={seed}  ->  {config.output.dir}"
+                    print(f"\n{'=' * len(banner)}\n{banner}\n{'=' * len(banner)}", flush=True)
+                    try:
+                        run(config)
+                    except Exception:
+                        failures.append((cfg_path, seed))
+                        print(f"!! FAILED {cfg_path} seed={seed}\n{traceback.format_exc()}", flush=True)
 
-    aggregate(out_root, args.configs, args.seeds)
+    for v in args.v_max:
+        aggregate(vroot_for(v), args.configs, args.seeds)
 
     if failures:
         print(f"\n{len(failures)} run(s) failed: {failures}")

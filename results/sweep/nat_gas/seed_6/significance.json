@@ -2,9 +2,9 @@
   "benchmark": "StaticGARCH",
   "dm_qlike_vs_benchmark": {
     "nat_gas GARCHNet": {
-      "dm_stat": 0.7304865373963512,
-      "p_value": 0.46509283909243776,
-      "mean_loss_diff": 0.1060441813603171,
+      "dm_stat": -1.6539349081387151,
+      "p_value": 0.09814073896264931,
+      "mean_loss_diff": -0.03185817475330035,
       "bandwidth": 7,
       "h": 1,
       "n_obs": 1423
@@ -47,11 +47,11 @@
         "EWMA"
       ],
       "pvalues": {
-        "EWMA": 0.0086,
-        "GJRGARCH": 0.1722,
-        "StaticGARCH": 0.1722,
-        "nat_gas GARCHNet": 0.6032,
-        "EGARCH": 1.0
+        "EWMA": 0.0082,
+        "GJRGARCH": 0.1738,
+        "StaticGARCH": 0.1738,
+        "EGARCH": 0.3136,
+        "nat_gas GARCHNet": 1.0
       }
     },
     "mse_var": {
@@ -65,10 +65,10 @@
       ],
       "excluded": [],
       "pvalues": {
-        "EWMA": 0.1388,
-        "StaticGARCH": 0.1844,
-        "GJRGARCH": 0.206,
-        "EGARCH": 0.4026,
+        "EWMA": 0.1228,
+        "StaticGARCH": 0.1344,
+        "GJRGARCH": 0.1424,
+        "EGARCH": 0.3748,
         "nat_gas GARCHNet": 1.0
       }
     }
