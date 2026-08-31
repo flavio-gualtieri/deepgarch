@@ -1,31 +1,31 @@
 {
   "oil GARCHNet": {
-    "qlike": -5.985561626117975,
-    "mse_variance": 1.638631074663267e-05,
+    "qlike": -5.989836547554135,
+    "mse_variance": 1.703086032133158e-05,
     "var": {
       "alpha": 0.01,
       "n_obs": 194,
-      "n_violations": 5,
-      "violation_rate": 0.02577319587628866,
+      "n_violations": 6,
+      "violation_rate": 0.030927835051546393,
       "expected_rate": 0.01,
-      "kupiec_lr": 3.3965139128189605,
-      "kupiec_pvalue": 0.06533436160646881
+      "kupiec_lr": 5.515294450999882,
+      "kupiec_pvalue": 0.01885089970740148
     },
     "calibration": {
-      "mean_z2": 1.1061442175162834,
-      "empirical_quantile": -2.7727274958573793,
-      "scale_corrected_quant": -2.6363393529515884,
+      "mean_z2": 1.1544237926151875,
+      "empirical_quantile": -2.5959289936319587,
+      "scale_corrected_quant": -2.416073681522727,
       "gaussian_quantile": -2.3263478740408408
     },
     "christoffersen": {
       "alpha": 0.01,
       "n_obs": 194,
-      "n_violations": 5,
-      "lr_uc": 3.3965139128189605,
-      "lr_ind": 0.26598880912409584,
-      "lr_cc": 3.6625027219430564,
-      "p_ind": 0.6060352945048209,
-      "p_cc": 0.16021295804092925
+      "n_violations": 6,
+      "lr_uc": 5.515294450999882,
+      "lr_ind": 0.38509282828394475,
+      "lr_cc": 5.900387279283827,
+      "p_ind": 0.534890164661953,
+      "p_cc": 0.0523295718877243
     }
   },
   "StaticGARCH": {
