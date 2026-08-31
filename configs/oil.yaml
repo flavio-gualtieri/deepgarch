@@ -2,13 +2,15 @@
 # features. Event dates are used to annotate plots, sourced from Wikipedia
 # ("Economic impact of the 2026 Iran war", "2026 Strait of Hormuz crisis")
 # and CNBC / Al Jazeera reporting, July 2026.
+#
+# No `end`: the test window runs to the latest available bar, matching
+# configs/spy.yaml and configs/natgas.yaml.
 
 seed: 42
 
 data:
   ticker: "CL=F"
   start: "2005-01-01"
-  end: "2026-07-13"
   val_start: "2023-01-01"
   test_start: "2025-10-01"
   yahoo_aux_tickers:

@@ -7,7 +7,6 @@ seed: 42
 data:
   ticker: "CL=F"
   start: "2005-01-01"
-  end: "2026-07-13"
   val_start: "2023-01-01"
   test_start: "2025-10-01"
   yahoo_aux_tickers:

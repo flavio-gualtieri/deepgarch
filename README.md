@@ -69,10 +69,26 @@ conda env create -f environment.yml && conda activate deepgarch
 python run.py --config configs/spy.yaml
 python run.py --config configs/natgas.yaml
 python run.py --config configs/oil.yaml
+python run.py --config configs/spy_ablate.yaml
 python run.py --config configs/natgas_ablate.yaml
 python run.py --config configs/oil_ablate.yaml
 ```
 
-Each run writes plots, `comparison_metrics.json`, `parameter_path.csv`, and
-a `*_model.pt` checkpoint to `output.dir` in the config (`results/<market>`
-or `results/ablations/<variant>`).
+Each run writes plots, `comparison_metrics.json`, `parameter_path.csv`,
+`loss_series.csv` (per-observation QLIKE/MSE for every model),
+`significance.json` (Diebold-Mariano vs the static-GARCH benchmark + the
+Model Confidence Set), and a `*_model.pt` checkpoint to `output.dir` in the
+config (`results/<market>` or `results/ablations/<variant>`).
+
+### Seed sweep
+
+`sweep.py` is a thin wrapper that re-runs configs across seeds, changing only
+the seed and the output directory:
+
+```bash
+python sweep.py                                   # spy/natgas/oil x seeds 0-9
+python sweep.py --seeds 0 1 2 --configs configs/natgas.yaml
+```
+
+Per-seed results land in `results/sweep/<market>/seed_<n>/`; aggregated
+metrics (long form) plus across-seed mean/std go to `results/sweep/summary.csv`.

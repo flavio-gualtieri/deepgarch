@@ -46,7 +46,6 @@ class ArchBaseline(ABC):
 
     @staticmethod
     def _to_numpy(x: torch.Tensor | Series[Any]) -> np.ndarray:
-        """Coerce a tensor / Series / array-like to a 1-D numpy array."""
         if torch.is_tensor(x):
             return x.detach().cpu().numpy()
         return np.asarray(x)

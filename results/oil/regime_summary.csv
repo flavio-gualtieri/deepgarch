@@ -1,9 +1,9 @@
 ,0
 pre_split_ann_vol,0.30295252374768045
-post_split_ann_vol_mean,0.6998293305313942
+post_split_ann_vol_mean,0.6531515499998618
 post_split_ann_vol_peak,1.0491260421466249
 pre_split_persistence_mean,0.9884522557258606
-post_split_persistence_mean,0.9879913926124573
-current_persistence,0.9886031746864319
-current_ann_vol,0.45733723937150045
-forecast_horizon_ann_vol,0.427610708969701
+post_split_persistence_mean,0.9880872368812561
+current_persistence,0.9884087443351746
+current_ann_vol,0.42917920360306344
+forecast_horizon_ann_vol,0.4118802270304631

@@ -1,0 +1,41 @@
+# Ablation: level head disabled (v_raw pinned to 0, so sigma_bar2 is fixed
+# at the training-set unconditional variance). Everything else identical to
+# configs/spy.yaml — isolates the effect of the conditional level head.
+
+seed: 42
+
+data:
+  ticker: SPY
+  start: "2021-06-23"
+  val_start: "2024-01-01"
+  test_start: "2025-06-01"
+
+features:
+  return_windows: [5, 22]
+  exogenous_lag: 1
+  include_seasonality: false
+
+model:
+  hidden_dims: [32, 16]
+  dropout: 0.10
+  p: 1
+  q: 1
+  constraint: stationary
+  max_persistence: 0.999
+  ablate_level_head: true
+
+train:
+  max_epochs: 500
+  learning_rate: 0.005
+  weight_decay: 0.0001
+  patience: 100
+  min_delta: 0.0001
+  grad_clip: 1.0
+  log_every: 25
+
+forecast:
+  horizon: 30
+
+output:
+  market: spy-ablate
+  dir: results/ablations/spy_ablate

@@ -20,14 +20,14 @@ _DEFAULT_EVENTS = {
 
 
 def _resolve_x(index, n: int):
-    """Return an x-axis array: the given date index, or a 0..n range."""
+    # x-axis: the given date index, else a 0..n range.
     if index is not None:
         return pd.DatetimeIndex(index)
     return np.arange(n)
 
 
 def _annotate_events(ax, index, events: dict[str, str]) -> None:
-    """Draw vertical lines at event dates that fall within the index range."""
+    # Vertical lines at event dates that fall within the index range.
     if index is None:
         return
     idx = pd.DatetimeIndex(index)
@@ -49,22 +49,7 @@ def plot_parameter_paths(
     events: dict[str, str] | None = None,
     save_path: str | None = None,
 ):
-    """
-    Plot the time-varying GARCH parameters produced by the network.
-
-    Parameters
-    ----------
-    omega : array-like (T,)
-    alpha : array-like (T,) or (T, 1)
-    beta  : array-like (T,) or (T, 1)
-    index : optional date index of length T for the x-axis.
-    events : optional {label: date} markers. Defaults to GFC/COVID/2022.
-    save_path : if given, save the figure there.
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-    """
+    # Time-varying (omega, alpha, beta, persistence) paths from the network.
     import matplotlib.pyplot as plt
 
     o = _to_numpy(omega).reshape(-1)
@@ -106,23 +91,8 @@ def plot_volatility_comparison(
     events: dict[str, str] | None = None,
     save_path: str | None = None,
 ):
-    """
-    Compare conditional volatility (σ_t = sqrt(h_t)) across models.
-
-    Plots |returns| in the background with the NeuralGARCH volatility and,
-    optionally, the static GARCH volatility on top.
-
-    Parameters
-    ----------
-    returns : array-like (T,)
-    neural_var : array-like (T,)   conditional variance from NeuralGARCH
-    static_var : optional array-like (T,)  conditional variance from baseline
-    index, events, save_path : as in plot_parameter_paths.
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-    """
+    # Conditional vol (sigma_t = sqrt(h_t)): |returns| behind the NeuralGARCH
+    # path, with the static GARCH path on top when static_var is given.
     import matplotlib.pyplot as plt
 
     r = _to_numpy(returns).reshape(-1)
@@ -157,20 +127,7 @@ def plot_var_violations(
     index=None,
     save_path: str | None = None,
 ):
-    """
-    Plot returns with the model's VaR band and mark violations.
-
-    Parameters
-    ----------
-    returns : array-like (T,)
-    forecast_var : array-like (T,)
-    alpha : VaR tail probability.
-    index, save_path : as above.
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-    """
+    # Returns with the model's lower VaR band; violations marked.
     import matplotlib.pyplot as plt
     from statistics import NormalDist
 

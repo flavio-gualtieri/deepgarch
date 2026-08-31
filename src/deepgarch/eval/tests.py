@@ -30,23 +30,12 @@ def _var_violations(returns, forecast_var, alpha: float) -> np.ndarray:
 # Diebold-Mariano: pairwise equal-predictive-accuracy test on loss series
 # ---------------------------------------------------------------------------
 
+# Diebold-Mariano (1995) equal-predictive-accuracy test on two aligned
+# per-obs loss series. Long-run variance of d_t = loss_a_t - loss_b_t via a
+# Bartlett/Newey-West HAC kernel, bandwidth floor(4*(T/100)^(2/9)) floored
+# at h-1; two-sided normal-approximation p-value. mean_loss_diff is a - b
+# (negative => a has lower average loss).
 def diebold_mariano(loss_a, loss_b, h: int = 1) -> dict:
-    """
-    Diebold-Mariano test of equal predictive accuracy between two aligned
-    per-observation loss series (e.g. qlike_series for two models).
-
-    The long-run variance of the loss differential d_t = loss_a_t - loss_b_t
-    is estimated with a Bartlett/Newey-West HAC kernel, bandwidth
-    floor(4*(T/100)^(2/9)) (Newey & West 1994's plug-in rule), floored at
-    h-1 so an h-step forecast horizon's known MA(h-1) overlap is always
-    covered. p-value is the two-sided normal-approximation p-value (as in
-    the original Diebold-Mariano 1995 test).
-
-    Returns
-    -------
-    dict with keys: dm_stat, p_value, mean_loss_diff (a - b; negative means
-    a has lower average loss), bandwidth, h, n_obs.
-    """
     a = _to_numpy(loss_a)
     b = _to_numpy(loss_b)
     if a.shape != b.shape:
@@ -81,19 +70,10 @@ def diebold_mariano(loss_a, loss_b, h: int = 1) -> dict:
 # Christoffersen (1998) conditional-coverage test
 # ---------------------------------------------------------------------------
 
+# Christoffersen (1998): splits the VaR backtest into unconditional coverage
+# (LR_uc, the Kupiec POF stat) and independence (LR_ind, from a first-order
+# Markov chain on the violation indicator). LR_cc = LR_uc + LR_ind ~ chi2(2).
 def christoffersen(returns, forecast_var, alpha: float = 0.01) -> dict:
-    """
-    Decomposes the VaR backtest into unconditional coverage (LR_uc, the
-    Kupiec POF statistic) and independence (LR_ind, whether violations
-    cluster instead of scattering like a Bernoulli(alpha) process), via a
-    first-order Markov chain on the violation indicator. LR_cc = LR_uc +
-    LR_ind ~ chi2(2) is the joint conditional-coverage test.
-
-    Returns
-    -------
-    dict with keys: alpha, n_obs, n_violations, lr_uc, lr_ind, lr_cc,
-    p_ind, p_cc.
-    """
     violations = _var_violations(returns, forecast_var, alpha)
     T = len(violations)
     x = int(violations.sum())
@@ -150,18 +130,9 @@ def model_confidence_set(
     bootstrap: str = "stationary",
     seed: int | None = 0,
 ) -> dict:
-    """
-    Model Confidence Set over named per-observation loss series (e.g. each
-    model's qlike_series), via arch.bootstrap.MCS — already a project
-    dependency (used for the static GARCH baseline) and a tested
-    implementation of the bootstrap elimination procedure, so it's reused
-    here rather than re-derived.
-
-    Returns
-    -------
-    dict with keys: alpha, included (names in the MCS), excluded (names
-    eliminated), pvalues (name -> MCS p-value).
-    """
+    # Model Confidence Set (Hansen, Lunde & Nason 2011) over named per-obs
+    # loss series, via arch.bootstrap.MCS. Returns alpha, included, excluded,
+    # and pvalues (name -> MCS p-value).
     names = list(losses.keys())
     frame = pd.DataFrame({name: _to_numpy(losses[name]) for name in names})
 

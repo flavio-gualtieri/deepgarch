@@ -17,16 +17,10 @@ def _to_numpy(x) -> np.ndarray:
 # Forecast-accuracy metrics
 # ---------------------------------------------------------------------------
 
+# Per-observation QLIKE loss L_t = log(h_t) + RV_t/h_t, scored against a
+# realized-variance proxy (Parkinson range variance), not squared returns.
+# Kept as a series so DM/MCS can work on the per-obs loss differential.
 def qlike_series(realized_var, forecast_var) -> np.ndarray:
-    """
-    Per-observation QLIKE loss, L_t = log(h_t) + RV_t / h_t, against a
-    realized-variance proxy (e.g. Parkinson range variance), not the
-    squared-return proxy — squared returns are an unbiased but very noisy
-    daily variance estimator.
-
-    Kept separate from the scalar so DM/MCS tests can operate on the loss
-    differential per observation instead of a single mean.
-    """
     rv = _to_numpy(realized_var)
     h = _to_numpy(forecast_var)
     if np.any(h <= 0):
@@ -35,25 +29,16 @@ def qlike_series(realized_var, forecast_var) -> np.ndarray:
 
 
 def qlike(realized_var, forecast_var) -> float:
-    """Mean QLIKE loss. See qlike_series for the per-observation series."""
     return float(np.mean(qlike_series(realized_var, forecast_var)))
 
 
 def mse_variance_series(realized_var, forecast_var) -> np.ndarray:
-    """Per-observation squared error, (RV_t − h_t)². See mse_variance for the mean."""
     rv = _to_numpy(realized_var)
     h = _to_numpy(forecast_var)
     return (rv - h) ** 2
 
 
 def mse_variance(realized_var, forecast_var) -> float:
-    """
-    Mean squared error between a realized-variance proxy and forecast variance.
-
-        MSE = (1/T) Σ (RV_t − h_t)²
-
-    A simple, scale-sensitive view that complements QLIKE. Lower is better.
-    """
     return float(np.mean(mse_variance_series(realized_var, forecast_var)))
 
 
@@ -124,23 +109,10 @@ def residual_calibration(returns, forecast_var, alpha):
 # Bundling and comparison
 # ---------------------------------------------------------------------------
 
+# All metrics for one model's forecasts. `realized_var` (Parkinson proxy)
+# scores QLIKE/MSE; `returns` drives the VaR backtest and calibration. The
+# *_series values are per-obs np.ndarrays (not JSON-serializable) for DM/MCS.
 def evaluate(returns, forecast_var, realized_var, alpha: float = 0.01) -> dict:
-    """
-    Compute all metrics for a single model's forecasts.
-
-    `realized_var` is the realized-variance proxy used for QLIKE/MSE (e.g.
-    Parkinson range variance); `returns` still drives the VaR backtest and
-    residual calibration, which score actual realized outcomes, not a
-    variance proxy.
-
-    Returns
-    -------
-    dict with keys: qlike, qlike_series, mse_variance, mse_variance_series,
-    var (the var_backtest dict), calibration, christoffersen (the
-    Christoffersen conditional-coverage dict). The `*_series` entries are
-    per-observation losses (np.ndarray, not JSON-serializable) for DM/MCS
-    forecast-comparison tests; the scalars are their means.
-    """
     q_series = qlike_series(realized_var, forecast_var)
     mse_series = mse_variance_series(realized_var, forecast_var)
     return {
@@ -154,15 +126,10 @@ def evaluate(returns, forecast_var, realized_var, alpha: float = 0.01) -> dict:
     }
 
 
+# `benchmark` keys the DM column: every other model's QLIKE loss series is
+# tested against the benchmark's, so its own row shows no DM p. Christoffersen
+# p is each model's own LR_cc conditional-coverage p-value.
 def comparison_table(results: dict[str, dict], benchmark: str = "Static GARCH") -> str:
-    """
-    `benchmark` is the fixed reference model for the DM column: every other
-    model's QLIKE loss series is tested against `benchmark`'s via
-    diebold_mariano, so the DM p-value answers "does this model's forecast
-    accuracy differ from the benchmark's?" — the benchmark's own row has no
-    self-comparison to show. Christoffersen p is each model's own
-    conditional-coverage (LR_cc) p-value and needs no benchmark.
-    """
     header = (
         f"{'model':<16} {'QLIKE':>12} {'MSE(var)':>14} {'VaR viol.':>12} "
         f"{'Kupiec p':>10} {'z2 bias':>10} {'DM p':>10} {'Chris. p':>10}"

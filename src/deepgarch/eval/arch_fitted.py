@@ -99,5 +99,4 @@ class ArchFittedBaseline(ArchBaseline):
         self,
         params: Series,
     ) -> GARCHFamily:
-        """Construct the torch model represented by fitted ARCH parameters."""
         ...

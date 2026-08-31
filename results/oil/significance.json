@@ -2,36 +2,36 @@
   "benchmark": "StaticGARCH",
   "dm_qlike_vs_benchmark": {
     "oil GARCHNet": {
-      "dm_stat": 0.9376147128473356,
-      "p_value": 0.34844244757274306,
-      "mean_loss_diff": 0.04669761949354516,
+      "dm_stat": 0.896471465600073,
+      "p_value": 0.370001013479692,
+      "mean_loss_diff": 0.038007597437238534,
       "bandwidth": 4,
       "h": 1,
-      "n_obs": 194
+      "n_obs": 229
     },
     "GJRGARCH": {
-      "dm_stat": 1.361915238274541,
-      "p_value": 0.1732246365609168,
-      "mean_loss_diff": 0.2467938953218624,
+      "dm_stat": 1.3572953388904243,
+      "p_value": 0.17468738777855125,
+      "mean_loss_diff": 0.2092206890638996,
       "bandwidth": 4,
       "h": 1,
-      "n_obs": 194
+      "n_obs": 229
     },
     "EGARCH": {
-      "dm_stat": 1.2593778903770307,
-      "p_value": 0.2078938714810214,
-      "mean_loss_diff": 0.5258317464072216,
+      "dm_stat": 1.2462078539119612,
+      "p_value": 0.21268809642711733,
+      "mean_loss_diff": 0.44236422625577715,
       "bandwidth": 4,
       "h": 1,
-      "n_obs": 194
+      "n_obs": 229
     },
     "EWMA": {
-      "dm_stat": 1.220178605364911,
-      "p_value": 0.22239717542227075,
-      "mean_loss_diff": 0.09088558097750604,
+      "dm_stat": 1.2474734969608139,
+      "p_value": 0.21222393218465113,
+      "mean_loss_diff": 0.07910887017504065,
       "bandwidth": 4,
       "h": 1,
-      "n_obs": 194
+      "n_obs": 229
     }
   },
   "mcs": {
@@ -47,10 +47,10 @@
         "GJRGARCH"
       ],
       "pvalues": {
-        "EWMA": 0.0892,
-        "GJRGARCH": 0.0892,
-        "EGARCH": 0.1272,
-        "oil GARCHNet": 0.4654,
+        "EWMA": 0.0784,
+        "GJRGARCH": 0.0836,
+        "EGARCH": 0.1602,
+        "oil GARCHNet": 0.5046,
         "StaticGARCH": 1.0
       }
     },
@@ -65,10 +65,10 @@
       ],
       "excluded": [],
       "pvalues": {
-        "EWMA": 0.133,
-        "GJRGARCH": 0.133,
-        "EGARCH": 0.2546,
-        "oil GARCHNet": 0.5374,
+        "EWMA": 0.1192,
+        "GJRGARCH": 0.142,
+        "EGARCH": 0.2792,
+        "oil GARCHNet": 0.5624,
         "StaticGARCH": 1.0
       }
     }

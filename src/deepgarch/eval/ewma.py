@@ -8,15 +8,11 @@ from .baselines import ArchBaseline
 
 
 class EWMA(ArchBaseline):
-    """RiskMetrics-style EWMA variance:
-
-        sigma2_t = decay * sigma2_{t-1} + (1 - decay) * r_{t-1}**2
-
-    This is a GARCH(1,1) with omega=0, alpha=1-decay, beta=decay, so
-    filtering reuses the existing torch GARCH recursion directly rather
-    than a new GARCHFamily subclass. decay is fixed by convention (0.94
-    is the RiskMetrics default for daily data), not estimated by MLE.
-    """
+    # RiskMetrics-style EWMA variance:
+    #   sigma2_t = decay * sigma2_{t-1} + (1 - decay) * r_{t-1}**2
+    # A GARCH(1,1) with omega=0, alpha=1-decay, beta=decay, so filtering
+    # reuses the torch GARCH recursion directly. decay is fixed by
+    # convention (0.94, the RiskMetrics daily default), not estimated.
 
     def __init__(self, decay: float = 0.94) -> None:
         super().__init__()
