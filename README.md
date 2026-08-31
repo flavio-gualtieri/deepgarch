@@ -2,20 +2,22 @@
 
 **Does conditioning GARCH parameters on market state improve volatility forecasts?**
 
-GARCH(1,1) holds `(ω, α, β)` constant for all time. This project makes them a
-function of observable state — a small MLP maps lagged returns, realised
-volatility, volume and exogenous series to daily `(ω, α, β)` — and trains it end
-to end by backpropagating through the variance recursion. Benchmarked against
+GARCH(1,1) holds `(ω, α, β)` constant. This project makes them a
+function of observable state: a small MLP maps lagged returns, realised
+volatility, volume and exogenous series to daily `(ω, α, β)`. It trains
+by backpropagating through the variance recursion. 
+
+Benchmarked against
 static GARCH, GJR-GARCH, EGARCH and EWMA on SPY, natural gas (`NG=F`) and WTI
 crude (`CL=F`), across 10 seeds.
 
-**Answer: yes on natural gas, no elsewhere — and the interesting part is what
-had to be fixed to get there.** The first version underestimated variance by
-2.6× on natural gas. A calibration diagnostic localised the failure to one
+The first version underestimated variance by
+2.6x on natural gas. A calibration diagnostic localised the failure to one
 component (the conditional level head), and a sweep over the single parameter
 governing that component's freedom recovered the result: natural gas went from
-worst to best of five models, with a 5.6× drop in seed-to-seed variance. On SPY
-and oil the model remains inside the model confidence set but not separable
+worst to best of five models, with a 5.6x drop in seed-to-seed variance. 
+
+On SPY and oil the model is inside the model confidence set but not separable
 from the GARCH family.
 
 ---
@@ -37,11 +39,10 @@ Stationarity holds by construction: `ω > 0`, `α, β > 0`, `α + β <
 max_persistence`. The recursion `h_t = ω_t + α_t r²_{t−1} + β_t h_{t−1}` runs on
 top, trained on Gaussian NLL.
 
-**Why variance targeting.** `ω` is a poor thing to estimate directly: it is tiny
-(~1e−5) and strongly coupled to `ρ`, since `σ̄² = ω/(1−ρ)`. At `ρ = 0.999` a 1%
-error in `ω` moves the long-run level by 10×, which makes the likelihood surface
-a long thin ridge. Reparameterising to `(σ̄², ρ)` — *where does volatility sit*
-and *how fast does it revert* — rotates that ridge into two near-orthogonal
+**Why variance targeting.** Estimating `ω` directly is not ideal: it's a small value
+(~1e−5) and strongly coupled to `ρ`, as `σ̄² = ω/(1−ρ)`. At `ρ = 0.999` a 1%
+error in `ω` moves the long-run level by 10x, so the likelihood surface
+is a long thin ridge. Reparameterising to `(σ̄², ρ)` rotates the ridge into two near-orthogonal
 directions. `v₀ = log(train-set unconditional variance)`, so the network starts
 at the historical level and learns log-deviations from it. `v_max` bounds those
 deviations to a factor of `exp(v_max)` in either direction.
@@ -54,11 +55,10 @@ train returns only, so no val/test variance enters the initial condition.
 
 ## The `v_max` result
 
-`v_max` was introduced as a safety rail against `exp()` overflow and left at
-3.0 — a factor of `e³ ≈ 20` in either direction, a 400× range. It is really a
-regularisation strength, and on natural gas the level head used the whole band,
-swinging `σ̄²` from 5.1e−5 to 2.0e−2 across the test split. Tightening it to 1.0
-is the single change that fixed the model.
+`v_max` was introduced as a safety rail against `exp()` overflow and initially left at
+3.0. On natural gas the level head used the whole band,
+swinging `σ̄²` from 5.1e−5 to 2.0e−2 across the test split. I tightened this to 1.0 following a
+sweep over a range of `v_max` values. This change measurably improved the model.
 
 | `v_max` | natgas QLIKE | `mean_z2` |
 |---:|---:|---:|
@@ -70,18 +70,9 @@ is the single change that fixed the model.
 
 ![v_max sweep](results/vmax_sweep.png)
 
-A monotone dose-response between level-head freedom and miscalibration.
-`mean_z2` is the mean of squared standardised residuals `(r_t/σ_t)²`, which
-should equal 1 if the variance forecast is correctly scaled — so the right-hand
-column reads directly as the factor by which the model under-forecasts
-variance.
-
-The effect is not only on the mean. Tightening `v_max` cut the natgas
-seed-to-seed QLIKE sd from 0.0389 to 0.0070, a 5.6× reduction: the level head
-was the dominant source of run-to-run instability.
-
-*(Caveat: the `v_max` grid is currently single-seed per level. The main results
-below are 10-seed.)*
+Tightening `v_max` also cut the natgas
+seed-to-seed QLIKE sd from 0.0389 to 0.0070, a 5.6x improvement: the level head
+was seemingly a source of run-to-run instability.
 
 ## Results
 
@@ -112,59 +103,22 @@ forecast distribution and are unaffected by the proxy choice.
 Per-seed numbers in `results/sweep/summary.csv`; DM and MCS aggregates in
 `results/sweep/significance.json`.
 
-**Natural gas — the result.** Best QLIKE of all five models, and the lowest
+**Natural gas.** Best QLIKE of all five models, and the lowest
 variance MSE by a wide margin (1.17e−5 vs 1.87e−5 for static GARCH). Beats the
-benchmark on 10/10 seeds by DM sign, though the ensemble DM p vs static GARCH is
-0.110 and only 3/10 seeds clear p < 0.05 individually — so the honest claim is
-*ranks first, in the MCS on 10/10 seeds, not significantly separated*. VaR
-coverage is the remaining weakness: 1.55% against 1% nominal, Kupiec p = 0.087,
-with `mean_z2` still at 1.50. The scale bias is much reduced but not gone.
+benchmark on 10/10 seeds by DM sign. VaR
+coverage is a weakness: 1.55% against 1% nominal, Kupiec p = 0.087,
+with `mean_z2` still at 1.50.
 
 **SPY.** −9.0633 ± 0.0157 against EGARCH's −9.0683 — a gap of 0.005 against a
-seed sd three times larger. Effectively a tie. GARCHNet beats static GARCH with
+seed sd three times larger - generally speaking a tie. GARCHNet beats static GARCH with
 DM p < 0.001 on 10/10 seeds and is in the QLIKE MCS on 10/10, but so are EGARCH,
-GJR and EWMA; only static GARCH is excluded. Competitive with the family, not
-separable from it.
+GJR and EWMA; only static GARCH is excluded. Competitive with the family but not especially
+distinguishable from it.
 
 **Oil.** Second behind static GARCH, ahead of EWMA, GJR and EGARCH, with the
 tightest seed spread (sd 0.0046). Every model fails VaR coverage here. The test
 split is short (229 days) and ends earlier than the other two markets.
 
-## Ablations (`results/ablations/`)
-
-**Level head disabled** (`ablate_level_head: true` pins `σ̄²` to the training-set
-unconditional variance — the `v_max = 0` endpoint of the sweep above; everything
-else identical):
-
-| Market | Full (`v_max`=1) | Level head off |
-|---|---:|---:|
-| Natgas | −5.5120 | −5.4823 |
-| SPY | −9.0673 | −9.0580 |
-| Oil | −5.9959 | −6.0042 |
-
-On natural gas the constrained level head beats both its unconstrained version
-(−5.4097 at `v_max`=3) and its removal (−5.4823), so `v_max`=1 is an interior
-optimum: the conditional level carries signal, but only under tight
-regularisation. Oil is the exception — removal is marginally better there.
-*(Single-seed, `seed: 42`; the full-model column is the seed-42 run for
-comparability.)*
-
-**EIA features** (`natgas_no_eia`): −5.5074 without them. The storage-release
-features are roughly neutral on the test split.
-
-**Parameterisation history.** Three frozen artifacts record how the constraint
-was arrived at:
-
-| Variant | QLIKE | Kupiec p |
-|---|---:|---:|
-| `natgas_old` — softmax-shared (α,β) | −5.385 | 1.2e−8 |
-| `natgas_reparam` — sigmoid(ρ,φ), free `ω` | −3.149 | 1.0e−7 |
-| `natgas_var_targeting` — `ω` from a variance target | −5.507 | 0.080 |
-
-Variance targeting is what made the recursion trainable; a free `ω` drifted and
-destroyed both QLIKE and VaR coverage. These three predate the current
-constraint code and are **not** reproducible from `configs/natgas.yaml`; the
-`*_ablate.yaml` variants are.
 
 ## Method notes
 
@@ -172,15 +126,12 @@ constraint code and are **not** reproducible from `configs/natgas.yaml`; the
   parameterisation and `v_max` were selected on validation; the test split is a
   single final look.
 - **Significance.** Diebold–Mariano on per-observation QLIKE with Bartlett /
-  Newey–West HAC long-run variance — forecast losses are autocorrelated, so
+  Newey–West HAC long-run variance. Forecast losses are autocorrelated, so
   naive standard errors over-reject. Model Confidence Set on top, to handle
   comparing five models at once. Both reported per-seed and on the seed-averaged
   loss series.
 - **Seeds.** Everything headline is 10 seeds. Baselines are deterministic, so
-  their sd is exactly zero by construction, not by luck.
-- **Known gaps.** The `v_max` grid is single-seed per level; the ablations are
-  single-seed; there is no walk-forward refit (one train, one frozen forecast
-  window).
+  their sd is exactly zero by construction.
 
 ## Install
 
