@@ -18,7 +18,9 @@ from deepgarch.eval import (
     EGARCH,
     EWMA,
     comparison_table,
+    diebold_mariano,
     evaluate,
+    model_confidence_set,
     plot_parameter_paths,
     plot_var_violations,
     plot_volatility_comparison,
@@ -185,7 +187,8 @@ def run(config: RunConfig) -> None:
         if isinstance(baseline, StaticGARCH):
             static_var = baseline_var
 
-    print(comparison_table(results))
+    benchmark = "StaticGARCH"
+    print(comparison_table(results, benchmark=benchmark))
     comparison_path = os.path.join(plots_dir, "comparison_metrics.json")
     # Per-observation *_series entries are ndarrays (for DM/MCS tests downstream,
     # not for this summary file) and aren't JSON-serializable — drop them here.
@@ -195,6 +198,45 @@ def run(config: RunConfig) -> None:
     }
     with open(comparison_path, "w") as f:
         json.dump(summary, f, indent=2)
+
+    # ---------------------------------------------------------------------
+    # Per-observation loss series + significance tests
+    #
+    # comparison_metrics.json keeps only scalar means; DM and MCS operate on
+    # the per-observation loss differential, so persist the raw *_series here.
+    #   loss_series.csv  — every model's QLIKE and MSE(var) loss per test day
+    #   significance.json — DM (each model vs the benchmark, on QLIKE) + the
+    #                       Model Confidence Set over the QLIKE and MSE series
+    # ---------------------------------------------------------------------
+
+    loss_series = pd.DataFrame(index=test_frame.index)
+    for name, metrics in results.items():
+        loss_series[f"{name} | qlike"] = metrics["qlike_series"]
+        loss_series[f"{name} | mse_var"] = metrics["mse_variance_series"]
+    loss_series_path = os.path.join(plots_dir, "loss_series.csv")
+    loss_series.to_csv(loss_series_path)
+    print(f"  saved -> {loss_series_path}")
+
+    significance = {"benchmark": benchmark, "dm_qlike_vs_benchmark": {}, "mcs": {}}
+    bench_qlike = results[benchmark]["qlike_series"]
+    for name, metrics in results.items():
+        if name == benchmark:
+            continue
+        significance["dm_qlike_vs_benchmark"][name] = diebold_mariano(
+            metrics["qlike_series"], bench_qlike
+        )
+    for loss_name, series_key in [("qlike", "qlike_series"), ("mse_var", "mse_variance_series")]:
+        try:
+            significance["mcs"][loss_name] = model_confidence_set(
+                {name: metrics[series_key] for name, metrics in results.items()}
+            )
+        except Exception as exc:  # MCS bootstrap can fail on a degenerate loss series
+            significance["mcs"][loss_name] = {"error": repr(exc)}
+
+    significance_path = os.path.join(plots_dir, "significance.json")
+    with open(significance_path, "w") as f:
+        json.dump(significance, f, indent=2, default=float)
+    print(f"  saved -> {significance_path}")
 
     # Save parameter diagnostics for interpretation.
     params = pd.DataFrame(
