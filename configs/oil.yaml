@@ -33,7 +33,10 @@ model:
   constraint: stationary
   max_persistence: 0.995
   s_max: 0.25
-  v_max: 1.0
+  # Oil's test period stays near the training regime; the level head never
+  # approaches the bound (v_max >= 2 sweep rows are identical), and the
+  # natural-gas value of 1.0 clips a useful adjustment. Left non-binding.
+  v_max: 3.0
 
 train:
   max_epochs: 1000

@@ -34,3 +34,4 @@ src/deepgarch/data/downloaded/
 # Junk
 docs/
 notebooks/
+REPO_AUDIT.md

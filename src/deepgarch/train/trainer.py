@@ -1,5 +1,7 @@
 # src/deepgarch/train/trainer.py
 
+import os
+import tempfile
 import time
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
@@ -151,7 +153,11 @@ class Trainer:
             self.model.fit_initial_variance(returns_train)
 
         result = TrainingResult()
-        checkpoint = Path(self.config.checkpoint_path)
+        # Unique per-fit checkpoint file (in the system temp dir), so concurrent
+        # trainings — e.g. parallel sweeps — never clobber each other's
+        # best-model weights. config.checkpoint_path only seeds the basename.
+        _ckpt_stem = Path(self.config.checkpoint_path).stem
+        checkpoint = Path(tempfile.gettempdir()) / f"{_ckpt_stem}.{os.getpid()}.{id(self):x}.pt"
         t0 = time.perf_counter()
 
         epochs_without_improvement = 0

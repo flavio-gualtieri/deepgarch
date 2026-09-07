@@ -29,7 +29,7 @@ model:
   constraint: stationary
   max_persistence: 0.995
   s_max: 0.25
-  v_max: 1.0
+  v_max: 3.0            # matches configs/oil.yaml; non-binding for oil either way
   ablate_level_head: true
 
 train:

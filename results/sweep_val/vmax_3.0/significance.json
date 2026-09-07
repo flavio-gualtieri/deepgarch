@@ -1,0 +1,286 @@
+{
+  "nat_gas": {
+    "benchmark": "StaticGARCH",
+    "n_seeds": 3,
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "qlike": {
+      "dm_vs_benchmark": {
+        "nat_gas GARCHNet": {
+          "ensemble": {
+            "dm_stat": -3.9430904016082815,
+            "p_value": 8.043831672063586e-05,
+            "mean_loss_diff": -0.03821123424501541,
+            "bandwidth": 6,
+            "h": 1,
+            "n_obs": 756
+          },
+          "per_seed": {
+            "mean_p": 0.0014613243592670221,
+            "median_p": 3.9217653886570447e-05,
+            "min_p": 1.4963861371253667e-05,
+            "max_p": 0.004329791562543242,
+            "frac_sig_0.05": 1.0,
+            "mean_dm_stat": -3.7647797635837286,
+            "mean_loss_diff": -0.038211234245015456,
+            "p_values": [
+              1.4963861371253667e-05,
+              0.004329791562543242,
+              3.9217653886570447e-05
+            ]
+          }
+        },
+        "GJRGARCH": {
+          "ensemble": {
+            "dm_stat": 1.7061311022446402,
+            "p_value": 0.08798367292517424,
+            "mean_loss_diff": 0.010017146464756144,
+            "bandwidth": 6,
+            "h": 1,
+            "n_obs": 756
+          },
+          "per_seed": {
+            "mean_p": 0.08798367292517471,
+            "median_p": 0.08798367292517471,
+            "min_p": 0.08798367292517471,
+            "max_p": 0.08798367292517471,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 1.7061311022446377,
+            "mean_loss_diff": 0.01001714646475613,
+            "p_values": [
+              0.08798367292517471,
+              0.08798367292517471,
+              0.08798367292517471
+            ]
+          }
+        },
+        "EGARCH": {
+          "ensemble": {
+            "dm_stat": -1.3234374364309505,
+            "p_value": 0.18568994909816988,
+            "mean_loss_diff": -0.019870881579928976,
+            "bandwidth": 6,
+            "h": 1,
+            "n_obs": 756
+          },
+          "per_seed": {
+            "mean_p": 0.1856899490981699,
+            "median_p": 0.18568994909816988,
+            "min_p": 0.18568994909816988,
+            "max_p": 0.18568994909816988,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": -1.3234374364309505,
+            "mean_loss_diff": -0.01987088157992897,
+            "p_values": [
+              0.18568994909816988,
+              0.18568994909816988,
+              0.18568994909816988
+            ]
+          }
+        },
+        "EWMA": {
+          "ensemble": {
+            "dm_stat": -1.7851308387223286,
+            "p_value": 0.07424009686693044,
+            "mean_loss_diff": -0.018373587000672972,
+            "bandwidth": 6,
+            "h": 1,
+            "n_obs": 756
+          },
+          "per_seed": {
+            "mean_p": 0.07424009686693017,
+            "median_p": 0.07424009686693017,
+            "min_p": 0.07424009686693017,
+            "max_p": 0.07424009686693017,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": -1.7851308387223301,
+            "mean_loss_diff": -0.018373587000672993,
+            "p_values": [
+              0.07424009686693017,
+              0.07424009686693017,
+              0.07424009686693017
+            ]
+          }
+        }
+      },
+      "mcs": {
+        "ensemble": {
+          "alpha": 0.1,
+          "included": [
+            "EGARCH",
+            "EWMA",
+            "nat_gas GARCHNet"
+          ],
+          "excluded": [
+            "GJRGARCH",
+            "StaticGARCH"
+          ],
+          "pvalues": {
+            "GJRGARCH": 0.0814,
+            "StaticGARCH": 0.0974,
+            "EGARCH": 0.5522,
+            "EWMA": 0.5522,
+            "nat_gas GARCHNet": 1.0
+          }
+        },
+        "per_seed": {
+          "n_seeds_ok": 3,
+          "in_mcs_count": {
+            "nat_gas GARCHNet": 3,
+            "StaticGARCH": 1,
+            "GJRGARCH": 1,
+            "EGARCH": 3,
+            "EWMA": 3
+          },
+          "mean_pvalue": {
+            "nat_gas GARCHNet": 1.0,
+            "StaticGARCH": 0.15706666666666666,
+            "GJRGARCH": 0.07046666666666666,
+            "EGARCH": 0.5676666666666667,
+            "EWMA": 0.5676666666666667
+          }
+        }
+      }
+    },
+    "mse_var": {
+      "dm_vs_benchmark": {
+        "nat_gas GARCHNet": {
+          "ensemble": {
+            "dm_stat": -0.4034626372572844,
+            "p_value": 0.6866079154407121,
+            "mean_loss_diff": -3.1569621641942394e-08,
+            "bandwidth": 6,
+            "h": 1,
+            "n_obs": 756
+          },
+          "per_seed": {
+            "mean_p": 0.46207440392299387,
+            "median_p": 0.617177900109257,
+            "min_p": 0.12630885269430728,
+            "max_p": 0.6427364589654175,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": -0.4976143637843486,
+            "mean_loss_diff": -3.15696216419424e-08,
+            "p_values": [
+              0.6427364589654175,
+              0.12630885269430728,
+              0.617177900109257
+            ]
+          }
+        },
+        "GJRGARCH": {
+          "ensemble": {
+            "dm_stat": 1.0669462313046956,
+            "p_value": 0.2859961167010452,
+            "mean_loss_diff": 4.717950253398698e-08,
+            "bandwidth": 6,
+            "h": 1,
+            "n_obs": 756
+          },
+          "per_seed": {
+            "mean_p": 0.2859961167010452,
+            "median_p": 0.2859961167010452,
+            "min_p": 0.2859961167010452,
+            "max_p": 0.2859961167010452,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": 1.0669462313046956,
+            "mean_loss_diff": 4.717950253398698e-08,
+            "p_values": [
+              0.2859961167010452,
+              0.2859961167010452,
+              0.2859961167010452
+            ]
+          }
+        },
+        "EGARCH": {
+          "ensemble": {
+            "dm_stat": -1.6474745998587195,
+            "p_value": 0.09946053286835674,
+            "mean_loss_diff": -1.3221979583347693e-07,
+            "bandwidth": 6,
+            "h": 1,
+            "n_obs": 756
+          },
+          "per_seed": {
+            "mean_p": 0.09946053286835672,
+            "median_p": 0.09946053286835674,
+            "min_p": 0.09946053286835674,
+            "max_p": 0.09946053286835674,
+            "frac_sig_0.05": 0.0,
+            "mean_dm_stat": -1.6474745998587192,
+            "mean_loss_diff": -1.3221979583347693e-07,
+            "p_values": [
+              0.09946053286835674,
+              0.09946053286835674,
+              0.09946053286835674
+            ]
+          }
+        },
+        "EWMA": {
+          "ensemble": {
+            "dm_stat": 4.117963583508318,
+            "p_value": 3.822350778142395e-05,
+            "mean_loss_diff": 1.542121553862608e-07,
+            "bandwidth": 6,
+            "h": 1,
+            "n_obs": 756
+          },
+          "per_seed": {
+            "mean_p": 3.822350778142407e-05,
+            "median_p": 3.822350778142407e-05,
+            "min_p": 3.822350778142407e-05,
+            "max_p": 3.822350778142407e-05,
+            "frac_sig_0.05": 1.0,
+            "mean_dm_stat": 4.117963583508317,
+            "mean_loss_diff": 1.5421215538626075e-07,
+            "p_values": [
+              3.822350778142407e-05,
+              3.822350778142407e-05,
+              3.822350778142407e-05
+            ]
+          }
+        }
+      },
+      "mcs": {
+        "ensemble": {
+          "alpha": 0.1,
+          "included": [
+            "EGARCH",
+            "EWMA",
+            "GJRGARCH",
+            "StaticGARCH",
+            "nat_gas GARCHNet"
+          ],
+          "excluded": [],
+          "pvalues": {
+            "EWMA": 0.1138,
+            "GJRGARCH": 0.1314,
+            "StaticGARCH": 0.3072,
+            "nat_gas GARCHNet": 0.3572,
+            "EGARCH": 1.0
+          }
+        },
+        "per_seed": {
+          "n_seeds_ok": 3,
+          "in_mcs_count": {
+            "nat_gas GARCHNet": 3,
+            "StaticGARCH": 3,
+            "GJRGARCH": 3,
+            "EGARCH": 3,
+            "EWMA": 2
+          },
+          "mean_pvalue": {
+            "nat_gas GARCHNet": 0.5106,
+            "StaticGARCH": 0.27526666666666666,
+            "GJRGARCH": 0.12613333333333332,
+            "EGARCH": 1.0,
+            "EWMA": 0.11060000000000002
+          }
+        }
+      }
+    }
+  }
+}

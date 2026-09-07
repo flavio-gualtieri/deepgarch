@@ -1,0 +1,147 @@
+{
+  "spy GARCHNet": {
+    "qlike": -9.064527524026074,
+    "mse_variance": 3.498267420562794e-09,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 313,
+      "n_violations": 4,
+      "violation_rate": 0.012779552715654952,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.2245357789985647,
+      "kupiec_pvalue": 0.635605404202668
+    },
+    "calibration": {
+      "mean_z2": 0.8933202067744993,
+      "empirical_quantile": -2.323985065576864,
+      "scale_corrected_quant": -2.458837081018941,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 313,
+      "n_violations": 4,
+      "lr_uc": 0.2245357789985647,
+      "lr_ind": 0.10389902465600187,
+      "lr_cc": 0.32843480365456657,
+      "p_ind": 0.7471998931410309,
+      "p_cc": 0.8485575238695868
+    }
+  },
+  "StaticGARCH": {
+    "qlike": -8.968881477979583,
+    "mse_variance": 4.671447316838031e-09,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 313,
+      "n_violations": 4,
+      "violation_rate": 0.012779552715654952,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.2245357789985647,
+      "kupiec_pvalue": 0.635605404202668
+    },
+    "calibration": {
+      "mean_z2": 0.8722596855073725,
+      "empirical_quantile": -2.4872362408636794,
+      "scale_corrected_quant": -2.663140853088446,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 313,
+      "n_violations": 4,
+      "lr_uc": 0.2245357789985647,
+      "lr_ind": 0.10389902465600187,
+      "lr_cc": 0.32843480365456657,
+      "p_ind": 0.7471998931410309,
+      "p_cc": 0.8485575238695868
+    }
+  },
+  "GJRGARCH": {
+    "qlike": -9.022437791870795,
+    "mse_variance": 3.864024547383553e-09,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 313,
+      "n_violations": 4,
+      "violation_rate": 0.012779552715654952,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.2245357789985647,
+      "kupiec_pvalue": 0.635605404202668
+    },
+    "calibration": {
+      "mean_z2": 0.8797219070114262,
+      "empirical_quantile": -2.547305526482903,
+      "scale_corrected_quant": -2.715865975888698,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 313,
+      "n_violations": 4,
+      "lr_uc": 0.2245357789985647,
+      "lr_ind": 0.10389902465600187,
+      "lr_cc": 0.32843480365456657,
+      "p_ind": 0.7471998931410309,
+      "p_cc": 0.8485575238695868
+    }
+  },
+  "EGARCH": {
+    "qlike": -9.068337532815432,
+    "mse_variance": 3.519564512231668e-09,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 313,
+      "n_violations": 6,
+      "violation_rate": 0.019169329073482427,
+      "expected_rate": 0.01,
+      "kupiec_lr": 2.0953818170467713,
+      "kupiec_pvalue": 0.1477447978600936
+    },
+    "calibration": {
+      "mean_z2": 0.9483478396818572,
+      "empirical_quantile": -2.517769241932926,
+      "scale_corrected_quant": -2.5854258940108443,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 313,
+      "n_violations": 6,
+      "lr_uc": 2.0953818170467713,
+      "lr_ind": 0.2353091971235628,
+      "lr_cc": 2.330691014170334,
+      "p_ind": 0.6276147797710979,
+      "p_cc": 0.31181490915865295
+    }
+  },
+  "EWMA": {
+    "qlike": -8.98555817452146,
+    "mse_variance": 4.681128615664677e-09,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 313,
+      "n_violations": 4,
+      "violation_rate": 0.012779552715654952,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.2245357789985647,
+      "kupiec_pvalue": 0.635605404202668
+    },
+    "calibration": {
+      "mean_z2": 1.0355726668726204,
+      "empirical_quantile": -2.6742484476297803,
+      "scale_corrected_quant": -2.627915901611524,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 313,
+      "n_violations": 4,
+      "lr_uc": 0.2245357789985647,
+      "lr_ind": 0.10389902465600187,
+      "lr_cc": 0.32843480365456657,
+      "p_ind": 0.7471998931410309,
+      "p_cc": 0.8485575238695868
+    }
+  }
+}

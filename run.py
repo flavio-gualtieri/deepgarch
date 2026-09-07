@@ -73,6 +73,18 @@ def run(config: RunConfig) -> None:
     n_train, n_val = len(train_frame), len(val_frame)
     test_start_idx = n_train + n_val
 
+    # The variance recursion below always runs over the full train+val+test
+    # path; config.eval_split only chooses which contiguous window of that
+    # path the metrics are computed on. "test" == the historical [test_start_idx:].
+    _eval_windows = {
+        "train": (0, n_train),
+        "val": (n_train, test_start_idx),
+        "test": (test_start_idx, len(all_frame)),
+    }
+    eval_start, eval_end = _eval_windows[config.eval_split]
+    eval_index = all_frame.index[eval_start:eval_end]
+    print(f"[eval] scoring split={config.eval_split!r} window=[{eval_start}:{eval_end}] n={eval_end - eval_start}")
+
     # ---------------------------------------------------------------------
     # Features
     # ---------------------------------------------------------------------
@@ -168,22 +180,22 @@ def run(config: RunConfig) -> None:
     model.eval()
     with torch.no_grad():
         # Warmed-up path: run the variance recursion over train+val+test, then
-        # slice test — the t=0 seed still only depends on train returns.
+        # slice the eval window — the t=0 seed still only depends on train returns.
         diag_all = model.diagnostics(X_all, returns_all)
 
     neural_var_all = diag_all["sigma2"].detach().cpu().numpy()
-    neural_var = neural_var_all[test_start_idx:]
-    rets_test_np = returns_test.detach().cpu().numpy()
-    parkinson_var_test = all_frame["parkinson_var"].to_numpy()[test_start_idx:]
-    neural_metrics = evaluate(rets_test_np, neural_var, parkinson_var_test)
+    neural_var = neural_var_all[eval_start:eval_end]
+    rets_eval_np = returns_all[eval_start:eval_end].detach().cpu().numpy()
+    parkinson_var_eval = all_frame["parkinson_var"].to_numpy()[eval_start:eval_end]
+    neural_metrics = evaluate(rets_eval_np, neural_var, parkinson_var_eval)
 
     results = {f"{config.output.market} GARCHNet": neural_metrics}
     static_var = None  # kept for the plotting section below, filled in on the StaticGARCH pass
     for baseline in [StaticGARCH(), GJRGARCH(), EGARCH(), EWMA()]:
         baseline.fit(train_frame["returns"])
         baseline_var_all = np.asarray(baseline.filter(all_frame["returns"]))
-        baseline_var = baseline_var_all[test_start_idx:]
-        results[baseline.name] = evaluate(rets_test_np, baseline_var, parkinson_var_test)
+        baseline_var = baseline_var_all[eval_start:eval_end]
+        results[baseline.name] = evaluate(rets_eval_np, baseline_var, parkinson_var_eval)
         if isinstance(baseline, StaticGARCH):
             static_var = baseline_var
 
@@ -209,7 +221,7 @@ def run(config: RunConfig) -> None:
     #                       Model Confidence Set over the QLIKE and MSE series
     # ---------------------------------------------------------------------
 
-    loss_series = pd.DataFrame(index=test_frame.index)
+    loss_series = pd.DataFrame(index=eval_index)
     for name, metrics in results.items():
         loss_series[f"{name} | qlike"] = metrics["qlike_series"]
         loss_series[f"{name} | mse_var"] = metrics["mse_variance_series"]
@@ -260,12 +272,12 @@ def run(config: RunConfig) -> None:
     # Plots
     # ---------------------------------------------------------------------
 
-    dates = test_frame.index
+    dates = eval_index
     events = config.output.events or None
-    params_test = params.iloc[test_start_idx:]
+    params_test = params.iloc[eval_start:eval_end]
 
     plot_volatility_comparison(
-        rets_test_np, neural_var, static_var=static_var, index=dates, events=events,
+        rets_eval_np, neural_var, static_var=static_var, index=dates, events=events,
         save_path=os.path.join(plots_dir, "02_forecast_vs_realised.png"),
     )
     print(f"  saved -> {plots_dir}/02_forecast_vs_realised.png")
@@ -278,13 +290,13 @@ def run(config: RunConfig) -> None:
     print(f"  saved -> {plots_dir}/03_parameter_path.png")
 
     plot_var_violations(
-        rets_test_np, neural_var, alpha=0.01, index=dates,
+        rets_eval_np, neural_var, alpha=0.01, index=dates,
         save_path=os.path.join(plots_dir, "04_var_violations_neural.png"),
     )
     print(f"  saved -> {plots_dir}/04_var_violations_neural.png")
 
     plot_var_violations(
-        rets_test_np, static_var, alpha=0.01, index=dates,
+        rets_eval_np, static_var, alpha=0.01, index=dates,
         save_path=os.path.join(plots_dir, "05_var_violations_static.png"),
     )
     print(f"  saved -> {plots_dir}/05_var_violations_static.png")
@@ -321,7 +333,7 @@ def run(config: RunConfig) -> None:
     # compare average/peak volatility and persistence before vs. after.
     # ---------------------------------------------------------------------
 
-    if config.output.regime_split:
+    if config.output.regime_split and config.eval_split == "test":
         split_date = pd.Timestamp(config.output.regime_split)
         pre = params_test[params_test.index < split_date]
         post = params_test[params_test.index >= split_date]

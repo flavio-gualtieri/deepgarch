@@ -1,0 +1,76 @@
+{
+  "benchmark": "StaticGARCH",
+  "dm_qlike_vs_benchmark": {
+    "nat_gas GARCHNet": {
+      "dm_stat": -4.171692061294582,
+      "p_value": 3.0234605874910506e-05,
+      "mean_loss_diff": -0.03426219767795123,
+      "bandwidth": 6,
+      "h": 1,
+      "n_obs": 756
+    },
+    "GJRGARCH": {
+      "dm_stat": 1.7061311022446377,
+      "p_value": 0.08798367292517471,
+      "mean_loss_diff": 0.01001714646475613,
+      "bandwidth": 6,
+      "h": 1,
+      "n_obs": 756
+    },
+    "EGARCH": {
+      "dm_stat": -1.323437436430951,
+      "p_value": 0.18568994909816974,
+      "mean_loss_diff": -0.019870881579928976,
+      "bandwidth": 6,
+      "h": 1,
+      "n_obs": 756
+    },
+    "EWMA": {
+      "dm_stat": -1.78513083872233,
+      "p_value": 0.07424009686693021,
+      "mean_loss_diff": -0.01837358700067299,
+      "bandwidth": 6,
+      "h": 1,
+      "n_obs": 756
+    }
+  },
+  "mcs": {
+    "qlike": {
+      "alpha": 0.1,
+      "included": [
+        "EGARCH",
+        "EWMA",
+        "nat_gas GARCHNet"
+      ],
+      "excluded": [
+        "GJRGARCH",
+        "StaticGARCH"
+      ],
+      "pvalues": {
+        "GJRGARCH": 0.027,
+        "StaticGARCH": 0.0564,
+        "EGARCH": 0.5746,
+        "EWMA": 0.5746,
+        "nat_gas GARCHNet": 1.0
+      }
+    },
+    "mse_var": {
+      "alpha": 0.1,
+      "included": [
+        "EGARCH",
+        "EWMA",
+        "GJRGARCH",
+        "StaticGARCH",
+        "nat_gas GARCHNet"
+      ],
+      "excluded": [],
+      "pvalues": {
+        "EWMA": 0.1222,
+        "GJRGARCH": 0.1388,
+        "nat_gas GARCHNet": 0.1892,
+        "StaticGARCH": 0.1892,
+        "EGARCH": 1.0
+      }
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "nat_gas GARCHNet": {
+    "qlike": -6.297674097073868,
+    "mse_variance": 1.71714183604574e-06,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 756,
+      "n_violations": 8,
+      "violation_rate": 0.010582010582010581,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.025384345889051474,
+      "kupiec_pvalue": 0.8734130964873938
+    },
+    "calibration": {
+      "mean_z2": 0.9303089655907034,
+      "empirical_quantile": -2.260493996193612,
+      "scale_corrected_quant": -2.343633810348609,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 756,
+      "n_violations": 8,
+      "lr_uc": 0.025384345889051474,
+      "lr_ind": 0.17135535061133567,
+      "lr_cc": 0.19673969650038714,
+      "p_ind": 0.678910063194806,
+      "p_cc": 0.9063136432449056
+    }
+  },
+  "StaticGARCH": {
+    "qlike": -6.267272951400562,
+    "mse_variance": 1.7660823899136596e-06,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 756,
+      "n_violations": 10,
+      "violation_rate": 0.013227513227513227,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.7222413936241452,
+      "kupiec_pvalue": 0.3954096741823188
+    },
+    "calibration": {
+      "mean_z2": 0.9894923040001676,
+      "empirical_quantile": -2.5013572789354503,
+      "scale_corrected_quant": -2.514603512309641,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 756,
+      "n_violations": 10,
+      "lr_uc": 0.7222413936241452,
+      "lr_ind": 0.26846443780981133,
+      "lr_cc": 0.9907058314339565,
+      "p_ind": 0.604363705191105,
+      "p_cc": 0.6093558180989234
+    }
+  },
+  "GJRGARCH": {
+    "qlike": -6.257255804935807,
+    "mse_variance": 1.8132618924476104e-06,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 756,
+      "n_violations": 9,
+      "violation_rate": 0.011904761904761904,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.2611333099440003,
+      "kupiec_pvalue": 0.6093426227053587
+    },
+    "calibration": {
+      "mean_z2": 1.002509189321246,
+      "empirical_quantile": -2.454044996748847,
+      "scale_corrected_quant": -2.450971946939086,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 756,
+      "n_violations": 9,
+      "lr_uc": 0.2611333099440003,
+      "lr_ind": 0.2171634450870954,
+      "lr_cc": 0.4782967550310957,
+      "p_ind": 0.6412097826801297,
+      "p_cc": 0.7872980563761259
+    }
+  },
+  "EGARCH": {
+    "qlike": -6.287143832980491,
+    "mse_variance": 1.6338625940800607e-06,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 756,
+      "n_violations": 10,
+      "violation_rate": 0.013227513227513227,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.7222413936241452,
+      "kupiec_pvalue": 0.3954096741823188
+    },
+    "calibration": {
+      "mean_z2": 1.0667440952843439,
+      "empirical_quantile": -2.557813448013323,
+      "scale_corrected_quant": -2.476502339524699,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 756,
+      "n_violations": 10,
+      "lr_uc": 0.7222413936241452,
+      "lr_ind": 0.26846443780981133,
+      "lr_cc": 0.9907058314339565,
+      "p_ind": 0.604363705191105,
+      "p_cc": 0.6093558180989234
+    }
+  },
+  "EWMA": {
+    "qlike": -6.285646538401235,
+    "mse_variance": 1.920294545299933e-06,
+    "var": {
+      "alpha": 0.01,
+      "n_obs": 756,
+      "n_violations": 10,
+      "violation_rate": 0.013227513227513227,
+      "expected_rate": 0.01,
+      "kupiec_lr": 0.7222413936241452,
+      "kupiec_pvalue": 0.3954096741823188
+    },
+    "calibration": {
+      "mean_z2": 1.1249883535358778,
+      "empirical_quantile": -2.4699801412831697,
+      "scale_corrected_quant": -2.3287316637565665,
+      "gaussian_quantile": -2.3263478740408408
+    },
+    "christoffersen": {
+      "alpha": 0.01,
+      "n_obs": 756,
+      "n_violations": 10,
+      "lr_uc": 0.7222413936241452,
+      "lr_ind": 0.26846443780981133,
+      "lr_cc": 0.9907058314339565,
+      "p_ind": 0.604363705191105,
+      "p_cc": 0.6093558180989234
+    }
+  }
+}

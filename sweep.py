@@ -184,6 +184,12 @@ def main() -> None:
     parser.add_argument("--configs", nargs="+", default=MAIN_CONFIGS)
     parser.add_argument("--out", default="results/sweep")
     parser.add_argument(
+        "--eval-split",
+        default=None,
+        choices=["train", "val", "test"],
+        help="override config.eval_split for every run (default: leave the YAML value)",
+    )
+    parser.add_argument(
         "--aggregate-only",
         action="store_true",
         help="skip training; rebuild summary.csv + significance.json from existing seed dirs",
@@ -202,6 +208,8 @@ def main() -> None:
                 for seed in args.seeds:
                     config = RunConfig.from_yaml(cfg_path)
                     config.seed = seed
+                    if args.eval_split is not None:
+                        config.eval_split = args.eval_split
                     if v is not None:
                         config.model.v_max = v
                     config.output.dir = str(vroot / config.output.market / f"seed_{seed}")

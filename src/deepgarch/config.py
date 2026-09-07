@@ -64,6 +64,12 @@ class OutputConfig:
     regime_split: str | None = None
 
 
+# Which split run.py scores its metrics on. The variance recursion always runs
+# over the full train+val+test path; this only selects the window that is
+# summarised. "test" reproduces the historical behaviour.
+EVAL_SPLITS = ("train", "val", "test")
+
+
 @dataclass
 class RunConfig:
     data: DataConfig
@@ -73,6 +79,13 @@ class RunConfig:
     forecast: ForecastConfig
     output: OutputConfig
     seed: int = 42
+    eval_split: str = "test"
+
+    def __post_init__(self) -> None:
+        if self.eval_split not in EVAL_SPLITS:
+            raise ValueError(
+                f"eval_split must be one of {EVAL_SPLITS}, got {self.eval_split!r}"
+            )
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> "RunConfig":
@@ -85,4 +98,5 @@ class RunConfig:
             forecast=ForecastConfig(**raw.get("forecast", {})),
             output=OutputConfig(**raw["output"]),
             seed=raw.get("seed", 42),
+            eval_split=raw.get("eval_split", "test"),
         )
