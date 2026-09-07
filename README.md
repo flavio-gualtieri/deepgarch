@@ -2,7 +2,7 @@
 
 **Does conditioning GARCH parameters on market state improve volatility forecasts?**
 
-The canonical GARCH(1,1) holds `(ω, α, β)` constant, while this project -- garchnet -- treats these parameters as a function of observable market state.
+The canonical GARCH(1,1) holds `(ω, α, β)` constant, while this project treats these parameters as a function of observable market state.
 
 A small MLP maps lagged returns, realised volatility, volume
 and exogenous series (e.g. EIA gas-storage releases) to daily `(ω, α, β)`,
