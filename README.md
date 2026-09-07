@@ -2,29 +2,22 @@
 
 **Does conditioning GARCH parameters on market state improve volatility forecasts?**
 
-Mostly no. A state-conditioned GARCH ties the static GARCH family on SPY and oil.
-It helps on natural gas — but only because that test period is a violent regime
-shift, and only when the model's conditional long-run-variance head is tightly
-bounded. Loosen that one bound and the natural-gas model becomes *worse* than
-plain GARCH and 60× less stable across seeds.
+The canonical GARCH(1,1) holds `(ω, α, β)` constant, while this project -- garchnet -- treats these parameters as a function of observable market state.
 
-GARCH(1,1) holds `(ω, α, β)` constant. This project makes them a function of
-observable state: a small MLP maps lagged returns, realised volatility, volume
-and exogenous series (incl. EIA gas-storage releases) to daily `(ω, α, β)`,
-trained by backpropagating through the variance recursion. Benchmarked against
-static GARCH, GJR-GARCH, EGARCH and EWMA on SPY, natural gas (`NG=F`) and WTI
-crude (`CL=F`), 10 seeds per market, scored with QLIKE against Parkinson range
-variance plus VaR backtests, with Diebold–Mariano (HAC) and the Model Confidence
-Set for significance.
+A small MLP maps lagged returns, realised volatility, volume
+and exogenous series (e.g. EIA gas-storage releases) to daily `(ω, α, β)`,
+trained by backpropagating through the variance recursion. The model is benchmarked against
+static GARCH, GJR-GARCH, EGARCH and EWMA. The tested assets are SPY, natural gas (`NG=F`) and WTI crude (`CL=F`). The model is run for 10 seeds per market, scored with QLIKE against Parkinson range variance plus VaR backtests, with Diebold–Mariano (HAC) and the Model Confidence Set for significance.
 
-**What actually happened.** The first natural-gas model underestimated variance
+The conditioned model boosts performance on natural gas, but ties with the static GARCH family on SPI and oil. The natural gas improvement is mainly due to the test period being a violent regime shift. Furthermore, this improvement only occurs when the conditional long-run variance head is tightly bounded.
+
+**Why bounding is necessary.** The first natural gas model underestimated variance
 ~2.6×. A calibration diagnostic traced this to the conditional level head
-slamming its safety bound (`v_max`) during the 2021+ regime shift (train ~50%
-annualised vol → test ~80%). Tightening `v_max` fixed it. A 10-seed sweep then
+breaching its safety bound (`v_max`) during the 2021+ regime shift (train ~50%
+annualised vol → test ~80%). Tightening `v_max` fixed this problem. A 10-seed sweep for each asset then
 showed the right bound is *market-specific* and tracks how far the test period
 strays from training: natural gas needs it tight (`v_max = 1`), oil needs it
-slack (`v_max = 3`, non-binding), SPY is indifferent. On the validation split —
-where every market is close to training — the bound does almost nothing. See
+slack (`v_max = 3`, non-binding), and SPY is seemingly indifferent. On the validation split — where every market is close to training — the bound does almost nothing. See
 [The `v_max` result](#the-v_max-result).
 
 ---
@@ -42,12 +35,11 @@ valid GARCH parameters:
 ω  = (1 − ρ) · σ̄²                               variance targeting
 ```
 
-Stationarity holds by construction: `ω > 0`, `α, β > 0`, `α + β <
-max_persistence`. The recursion `h_t = ω_t + α_t r²_{t−1} + β_t h_{t−1}` runs on
+Stationarity holds by construction: `ω > 0`, `α, β > 0`, `α + β < max_persistence`. The recursion `h_t = ω_t + α_t r²_{t−1} + β_t h_{t−1}` runs on
 top, trained on Gaussian NLL.
 
-**Why variance targeting.** Estimating `ω` directly is not ideal: it's a small value
-(~1e−5) and strongly coupled to `ρ`, as `σ̄² = ω/(1−ρ)`. At `ρ = 0.999` a 1%
+**Why variance targeting.** Estimating `ω` directly is not ideal because it is a small value
+(~1e−5) whcih is strongly coupled to `ρ`, as `σ̄² = ω/(1−ρ)`. At `ρ = 0.999` a 1%
 error in `ω` moves the long-run level by 10x, so the likelihood surface
 is a long thin ridge. Reparameterising to `(σ̄², ρ)` rotates the ridge into two near-orthogonal
 directions. `v₀ = log(train-set unconditional variance)`, so the network starts
@@ -62,7 +54,7 @@ train returns only, so no val/test variance enters the initial condition.
 
 ## The `v_max` result
 
-`v_max` began as an `exp()`-overflow rail, default 3.0. The natural-gas
+`v_max` began as an `exp()`-overflow rail, with default value 3.0. The natural-gas
 calibration diagnostic showed the level head using the entire band on the test
 split — `σ̄²` swinging from 5.1e−5 to 2.0e−2, `mean_z2 ≈ 2.3` (variance
 underestimated ~2×). The sweep below (5 values × 10 seeds × 3 markets, test
@@ -82,19 +74,17 @@ split; `results/sweep_test_vmax/`) shows what tightening it does.
   collapses seed variance: sd `0.43 → 0.007` from `v_max = 5` to `1`, `mean_z2`
   `5.1 → 1.5`. At `v_max ≥ 2` GARCHNet is worse than static GARCH in the mean
   (DM loss differential turns positive); at `v_max = 1` it ties static GARCH
-  (DM ensemble p = 0.11) with a well-calibrated, stable forecast. The bound
-  converts a variance bomb into a benchmark-tying model.
+  (DM ensemble p = 0.11) with a well-calibrated, stable forecast.
 - **Oil.** The `v_max ≥ 2` rows are identical — oil's level head never reaches
-  the bound, so raising the cap changes nothing. `v_max = 1` *clips* it: QLIKE
-  worsens 0.07 and seed sd jumps 10×. Oil's config is set to `v_max = 3`
-  (non-binding).
+  the bound, so raising it does not change anything. `v_max = 1` *clips* it: QLIKE
+  worsens 0.07 and seed sd jumps 10×. Oil's config is therefore set to `v_max = 3`.
 - **SPY.** Nearly flat — a 0.02 QLIKE drift across the whole grid (≈ 1.5 seed
-  sd), no instability, `mean_z2` fixed at 0.90. `v_max` barely matters.
+  sd), no instability, `mean_z2` fixed at 0.90.
 
-So the right `v_max` tracks regime distance: natural gas (train → test vol jump)
+So the correct `v_max` tracks regime distance: natural gas (train → test vol jump)
 needs the level head reined in; oil and SPY (test ≈ train) do not.
 
-**Validation cannot see any of this.** Re-scoring the natural-gas sweep on the
+Validation does not see this: re-scoring the natural-gas sweep on the
 2018–2020 validation split (`--eval-split val`, 3 seeds, `results/sweep_val/`),
 the whole grid moves QLIKE by 0.007 — one seed sd — and `mean_z2` stays in a
 calibrated 0.95–0.99 band:
@@ -105,20 +95,15 @@ calibrated 0.95–0.99 band:
 | 3.0 | −6.3055 ± 0.0073 | 0.95 |
 | 5.0 | −6.3040 ± 0.0080 | 0.95 |
 
-(QLIKE levels differ between splits because the periods differ; only the trend
-down each column is meaningful.) The validation period is too close to training
+The validation period is too close to training
 for the level head to over-reach, so `v_max = 1` for natural gas rests on
-test-split behaviour — a deliberate choice against a diagnosed failure, not a
-validated hyperparameter.
+test-split behaviour.
 
 ## Results
 
-10 seeds per market, mean ± sd; baselines are deterministic `arch` fits and
-carry no seed variation. Each market at its config `v_max` (natgas 1, SPY 1,
-oil 3). QLIKE and MSE score against **Parkinson range variance**,
-`(ln(high/low))²/(4 ln 2)` — unbiased for daily variance and far less noisy than
-squared returns. Violations test realised returns against the forecast
-distribution and are unaffected by the proxy. All numbers are the **test** split
+QLIKE and MSE score against **Parkinson range variance**,
+`(ln(high/low))²/(4 ln 2)` — which was picked becasue it is unbiased for daily variance and less noisy than squared returns. Violations test realised returns against the forecast
+distribution and are unaffected by this proxy. All numbers are from the **test** split
 (`config.eval_split = test`, the default); validation figures are in
 [The `v_max` result](#the-v_max-result).
 
@@ -146,19 +131,15 @@ Per-seed numbers and DM/MCS aggregates under `results/sweep_test_vmax/vmax_<v>/`
 wide margin (1.17e−5 vs 1.86e−5 for static GARCH). In the QLIKE MCS on 10/10
 seeds (EWMA excluded on 10/10, the other three baselines on 9/10). But vs static
 GARCH the seed-averaged DM p is **0.11** (3/10 seeds significant at 0.05) — a
-directional edge, not a decisive win; EGARCH is only 0.007 behind. VaR coverage
-is the weak point: 1.55% against 1% nominal, Kupiec p = 0.090, `mean_z2` = 1.50.
+directional edge, but not decisively better since EGARCH is only 0.007 behind. VaR coverage is a weakness: 1.55% against 1% nominal, Kupiec p = 0.090, `mean_z2` = 1.50.
 
-**SPY.** −9.0633 ± 0.0157 against EGARCH's −9.0683 — a gap smaller than the seed
-sd, i.e. a tie. GARCHNet beats static GARCH decisively (DM p < 0.001, 10/10
-seeds) and sits in the QLIKE MCS 10/10 — but so do EGARCH, GJR and EWMA; only
-static GARCH is excluded. Competitive with the family, not distinguishable from
-it.
+**SPY.** −9.0633 ± 0.0157 against EGARCH's −9.0683 — a smaller gap than the seed
+sd, so it should be interpreted as a tie. GARCHNet beats static GARCH decisively (DM p < 0.001, 10/10 seeds) and sits in the QLIKE MCS 10/10 — but so do EGARCH, GJR and EWMA; only
+static GARCH is excluded. So garchnet is competitive with the family, but not particularly distinguishable.
 
 **Oil.** Second behind static GARCH (−6.0038 vs −6.0339), ahead of EWMA, GJR and
 EGARCH, with the tightest seed spread (sd 0.0046). DM vs static GARCH p = 0.40 —
-no edge. Every model fails VaR coverage here; the test split is short (229 days)
-and ends earlier than the other two markets.
+no edge. Every model fails VaR coverage here.
 
 ## Method notes
 
@@ -166,21 +147,20 @@ and ends earlier than the other two markets.
   architecture and the `(ρ, s, σ̄²)` parameterisation were fixed on validation.
   `v_max` per market is the exception — validation is too close to training to
   resolve it (see [above](#the-v_max-result)) — so `v_max = 1` for natural gas
-  rests on test-split behaviour: a deliberate response to a diagnosed failure,
-  reported as such. `run.py` scores whichever split `config.eval_split` names
-  (default `test`).
+  rests on test-split behaviour. `run.py` scores whichever split `config.eval_split` names
+  (default is `test`).
 - **Significance.** Diebold–Mariano on per-observation QLIKE with Bartlett /
   Newey–West HAC long-run variance (forecast losses are autocorrelated, so naive
-  SEs over-reject), plus the Model Confidence Set to handle five models at once.
+  SEs would over-reject), plus the Model Confidence Set to handle five models at once.
   Reported both per-seed and on the seed-averaged loss series.
 - **Seeds.** Results and the `v_max` grid are 10 seeds on test; the validation
   `v_max` grid is 3 seeds; the `*_ablate` runs are single-seed. Baselines are
-  deterministic (`sd = 0` by construction). Training checkpoints go to a unique
-  per-run temp file, so sweeps are safe to run in parallel.
+  deterministic (so `sd = 0` automatically). Training checkpoints go to a unique
+  per-run temp file, so sweeps can be run in parallel.
 - **Data.** No `end` date is pinned: on re-run the test window extends to the
   latest bar and `n` grows. The natural-gas numbers here are one snapshot newer
   than SPY/oil (yfinance rate-limited the latter to a cached pull). The
-  `yfinance` cache under `src/deepgarch/data/downloaded/` is not committed.
+  `yfinance` data cache under `src/deepgarch/data/downloaded/` is not committed.
 
 ## Install
 
